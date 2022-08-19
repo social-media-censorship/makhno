@@ -1,0 +1,42 @@
+openapi: 3.0.3
+info:
+  title: Makhno API design 
+  description: |-
+   The endpoint sequence described here is part of the Makhno suite. The purpose is to define a protocol by which a client can request reachability checks from our infrastructure.
+   
+   ## There are some reserved words that we use in this document:
+   
+   `target URL`: this is the URL of a social media platform that we want to monitor. the subjects covered in this framework, are, for the most part. `target URLs`. they can be youtube videos or facebook posts. we are talking about a social media platform URL (not all of them are supported, of course, and different versions prograd in supporting more and more of them)
+   
+   `availabilityCheck`: is the action by which we verify that a `target URL` is accessible from a certain country.
+   
+   `vantagePoint`: is a point in the Internet network from which the availabilityCheck is executed to a targetURL. They are identified by the nationality of the internet service provider hosting them.
+   
+   ## The purpose of Makhno, as you can guess, is to map whether a social media content is accessible from a nation or not.
+  termsOfService: https://makhno.net/tos/
+  contact:
+    email: technology@makhno.net
+  license:
+    name: AGPL-3.0
+    url: https://www.gnu.org/licenses/agpl-3.0.html
+  version: 1.0.0
+externalDocs:
+  description: Makhno methodology
+  url: https://makhno.net/methodology
+servers:
+  - url: https://makhno.net/api/v1
+tags:
+  - name: GAFAM
+    description: parsers and dissectors  
+#    externalDocs:
+#      description: Find out more
+#      url: http://swagger.io
+  - name: submission
+    description: Access to Petstore orders
+    externalDocs:
+      description: Find out more about our store
+      url: http://swagger.io
+  - name: scheduled
+    description: Operations about user
+  - name: results
+    description: Operations about user
