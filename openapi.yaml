@@ -12,6 +12,8 @@ info:
    
    `vantagePoint`: is a point in the Internet network from which the availabilityCheck is executed to a targetURL. They are identified by the nationality of the internet service provider hosting them.
    
+   `agent`: a tool executed from a `vantagePoint`, this tool connects to a `target URL` and verify if the content is reachable or not.
+   
    ## The purpose of Makhno, as you can guess, is to map whether a social media content is accessible from a nation or not.
   termsOfService: https://makhno.net/tos/
   contact:
@@ -27,16 +29,449 @@ servers:
   - url: https://makhno.net/api/v1
 tags:
   - name: GAFAM
-    description: parsers and dissectors  
+    description: parsers and map of supported platforms   
 #    externalDocs:
 #      description: Find out more
 #      url: http://swagger.io
   - name: submission
-    description: Access to Petstore orders
-    externalDocs:
-      description: Find out more about our store
-      url: http://swagger.io
+    description: Submit `target URL` to be tested by Makhno
+#    externalDocs:
+#      description: Find out more about our store
+#      url: http://swagger.io
   - name: scheduled
-    description: Operations about user
+    description: Query the `availabilityCheck` scheduled so `agent` can connect
   - name: results
-    description: Operations about user
+    description: retrieved the list of results collected by the agents in the network
+    
+paths:
+  /GAFAM/supported:
+    post:
+      tags:
+        - GAFAM
+      summary: Return if a `target URL` belongs to a supported platform
+      description: it expect in the payload a target URL, it return with what normally is referred as Nature, so the nature of the URL. such as, a youtube video or a tiktok channel.
+      operationId: GAFAMsupported
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProposedUrl'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/ProposedUrl'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProposedUrl'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportedUrl'
+        '405':
+          description: Invalid input
+    get:
+      tags:
+        - GAFAM
+      summary: Display a list of the supported natures and URL exmaples that can be processed
+      operationId: GAFAMsupportedList
+      responses:
+        '200':
+          description: Initially only specific kind of youtube and tiktok URL are supported, but gradually more platform would be handled.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportedUrlFormatList'
+
+  /GAFAM/parse:
+    post:
+      tags:
+        - GAFAM
+      summary: this endpoint receives the payload produced from one of the `agent` collecting evidence.
+      description: An API that process HTML and parse it, receive a `targetURL` and before parsing it, it also re-check if the url is supported, by using the same internal validation also provided by the API `/GAFAM/supported`
+      operationId: GAFAMparse
+      requestBody:
+        description: The payload captured by the agent and information about the agent itself, also information about the `vantagePoint`
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParsePayload'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/ParsePayload'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ParsePayload'
+        required: true
+      responses:
+        '200':
+          description: The HTML have been parse properly and there is a determination
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParseResult'          
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ParseResult'
+        '405':
+          description: Invalid Input
+        '404':
+          description: targetURL validation fail
+        '409':
+          description: No valid HTML received
+  /submission:
+    get:
+      tags:
+        - submission
+      summary: Know which URL have been submitted (not used by agent)
+      description: This is the endpoint that manages a collection of objects into the database; It returns the list of `targetURL` that match the criterias specify by the `agent`, it can also return a default if not filtering is provided; it is worthy to list existing requested URL and identify their presence in the infrastructure. the `id` mentioned here is also referred as `submissionId` in other endpoints.
+      parameters:
+        - name: filter
+          in: query
+          description: query parameters to filter the URL submitted in the past, that might be tested by an agent
+          schema:
+            type: string
+  # perhaps the parameters should be described and broke down (platform, date, countryCodes)
+      responses:
+        '200':
+          description: List of matching submission with your query, ordered by the oldest
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmissionList'          
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/SubmissionList'
+        '405':
+          description: Invalid Input
+    post:
+      tags:
+        - submission
+      summary: Submit to the Makhno server the request to verify a `targetURL`
+      operationId: submitURL
+      requestBody:
+        description: The payload contains a `targetURL` and one or more country code, in the hopes some `agent` that runs in the right ISP, would pull this submission and perform an `availabilityCheck` from their `vantagePoint`. Internally the `target URL` is validated in the same way as in the /GAFAM/ endpoints.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmissionProposal'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/SubmissionProposal'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SubmissionProposal'
+        required: true
+      responses:
+        '200':
+          description: The submittion was valid and has been inserted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmissionDetail'          
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/SubmissionDetail'
+        '202':
+          description: The submittion was valid, but already present
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmissionDetail'          
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/SubmissionDetail'
+        '405':
+          description: Invalid Input
+  /scheduled:
+    get:
+      tags:
+        - scheduled
+      summary: Invoked by `agent` gets what should be tested
+      operationId: retrieveSchedule
+      description: This endpoint is queried by distributed agent around the world, they look for target URLs fitting their possibilities. normally a default agent should query by using the location as `vantagePoint`, but in future versions, agents might for example query because of specific platform (i.e. only facebook and only check `agent` should run from Italy). `submissionId` are duplicated in this API because a submission is requested to have a `availabilityCheck` more than once and from more than one `vantagePoint`
+      parameters:
+        - name: filter
+          in: query
+          description: query parameters to filter by platform, day, and two letter country code
+          schema:
+            type: string
+  # perhaps the parameters should be described and broke down (platform, date, countryCodes, skip)
+      responses:
+        '200':
+          description: List of matching submission with your query, ordered by the oldest
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduledList'          
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ScheduledList'
+        '405':
+          description: Invalid parameters
+    post:
+      tags:
+        - scheduled
+      summary: Reserved API, it is not mean to be user facing
+      operationId: forceSchedule
+      requestBody:
+        description: The payload allow an admin (or someone with special privileges) for force specific test, and controlling the parameters such as timing, country requestes, targetURL, timing (and implicitly also its the priority)
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddScheduled'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/AddScheduled'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AddScheduled'
+        required: true
+      responses:
+        '200':
+          description: The submittion was valid and has been inseted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduledActivity'          
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ScheduledActivity'
+        '202':
+          description: The submittion was valid, but already present
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduledActivity'          
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ScheduledActivity'
+        '405':
+          description: Invalid Input
+  /results:
+    get:
+      tags:
+        - results
+      summary: Invoked by webapp and bots to report the reachability status
+      operationId: retrieveResults
+      description: this endpoint should be the primarly public endpoint meant to report the status of reachability for an individual target URL.
+      parameters:
+        - name: filter
+          in: query
+          description: query parameters to filter by platform, day, and two letter country code
+          schema:
+            type: string
+  # perhaps the parameters should be described and broke down (platform, date, countryCodes, skip)
+      responses:
+        '200':
+          description: List of matching submission with your query, ordered by the oldest
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestResultList'          
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/TestResultList'
+        '405':
+          description: Invalid parameters
+    post:
+      tags:
+        - results
+      summary: Reserved API, it is not mean to be user facing
+      operationId: submitValidationCheck
+      requestBody:
+        description: This endpoint should be used by who has the privileges to submit a result into the platform.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidityCheck'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/ValidityCheck'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ValidityCheck'
+        required: true
+      responses:
+        '200':
+          description: The result have been accepted
+        '202':
+          description: The result was already present
+        '405':
+          description: Invalid Input
+
+components:
+  schemas:
+    ProposedUrl:
+      type: object
+      properties:
+        targetURL:
+          type: string
+          description: the URL you want to check if is supported or not
+    SupportedUrl:
+      type: object
+      properties:
+        platform:
+          type: string
+          description: youtube.com, or tiktok.com, basically the url.hostname field
+        nature:
+          type: string
+          description: the kind of page in the platform (search, profile, homepage, video, etc)
+        details:
+          type: object
+          description: the query string, or the videoId, it depends from the nature if details is set or not.
+        supported:
+          type: boolean
+          description: if the URL can be interpret by the parser API or not
+        id:
+          type: string
+          description: the unique ID tight to targetURL, that can be used to fetch other results. This is calculated by hashing the URL.
+    SupportedUrlFormatList:
+      type: array
+      items:
+        $ref: "#/components/schemas/SupportedUrlFormat"
+    SupportedUrlFormat:
+      type: object
+      properties:
+        platform:
+          type: string
+          description: youtube.com, or tiktok.com, basically the url.hostname field
+        nature:
+          type: string
+          description: the kind of page in the platform (search, profile, homepage, video, etc)
+        example:
+          type: string
+          description: and example of the supported URL.
+    ParsePayload:
+      type: object
+      properties:
+        targetURL:
+          type: string
+          description: the URL that have been analyzed by the agent
+        source:
+          type: string
+          description: it is a literal that explicit which kind of `agent` have been used, and which version
+        countryCode:
+          type: string
+          description: a two letter country code in ISO-3166
+        html:
+          type: string
+          description: the actual html code collected by the agent
+    ParseResult:
+      type: object
+      properties:
+        parsingInfo:
+          type: object
+          description: (optional) debug and reporting on how the parsing went
+        contentFit:
+          type: boolean
+          description: if a content was found in the page. When a page contains a blocking message such "content not available in your country" this return `false`
+        id:
+          type: string
+          description: the unique ID tight to targetURL, that can be used to fetch other results. This is calculated by hashing the URL.
+    SubmissionList:
+      type: array
+      items:
+        $ref: '#/components/schemas/SubmissionDetail'
+    SubmissionProposal:
+      type: object
+      properties:
+        url:
+          type: string
+        countryCodes:
+          type: array
+          items:
+            type: string
+    SubmissionDetail:
+      type: object
+      properties:
+        url:
+          $ref: '#/components/schemas/SupportedUrl'
+        countryCodes:
+          type: array
+          items:
+            type: string
+    ScheduledActivity:
+      type: object
+      properties:
+        submissionId:
+          type: string
+        checkTime:
+          type: string
+          format: date
+        countryCodes:
+          type: array
+          items:
+            type: string
+        testId:
+          type: string
+          description: generated by 
+    ScheduledList:
+      type: array
+      items:
+        $ref: '#/components/schemas/ScheduledActivity'
+    AddScheduled:
+      type: object
+      properties:
+        submissionId:
+          type: string
+        checkTimeWindowUTC:
+          type: string
+          format: date
+          description: this date describe a window of time that start since this value and ends at midnight UTC. the date is expressed in UTC.
+        countryCodes:
+          type: array
+          items:
+            type: string
+        authoritative:
+          type: string
+          description: this string need to be the secret token and/or the authentication mecanism necessary to forcefully add a scheduled test
+    ValidityCheck:
+      description: the object produced after the HTML have been parsed by the GAFAM API
+      type: object
+      properties:
+        submissionId:
+          type: string
+        testId:
+          type: string
+        vantagePoint:
+          type: string
+          description: two letter country code of the agent performing the test
+        checkTimeUTC:
+          type: string
+          format: date
+        status:
+          type: string
+          enum:
+            - reachable
+            - not reachable
+            - vaidation not possible
+        authoritative:
+          type: string
+          description: this string is the authentication material necessary to submit a result and save it in the server
+    TestResult:
+      type: object
+      properties:
+        submission:
+          $ref: '#/components/schemas/SubmissionDetail'
+        testId:
+          type: string
+        vantagePoint:
+          type: string
+          description: two letter country code of the agent performing the test
+        checkTimeUTC:
+          type: string
+          format: date
+        status:
+          type: string
+          enum:
+            - reachable
+            - not reachable
+            - validation not possible
+    TestResultList:
+      type: array
+      items:
+        $ref: "#/components/schemas/TestResult"
+    
+          
