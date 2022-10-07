@@ -1,0 +1,41 @@
+{
+  "name": "makhno_api_design",
+  "version": "1.0.0",
+  "description": "The_endpoint_sequence_described_here_is_part_of_the_Makhno_suite__The_purpose_is_to_define_a_protocol_by_which_a_client_can_request_reachability_checks_from_our_infrastructure__There_are_some_reserved_words_that_we_use_in_this_documenttarget_URL_this_is_the_URL_of_a_social_media_platform_that_we_want_to_monitor__the_subjects_covered_in_this_framework_are_for_the_most_part__target_URLs__they_can_be_youtube_videos_or_facebook_posts__we_are_talking_about_a_social_media_platform_URL__not_all_of_them_are_supported_of_course_and_different_versions_prograd_in_supporting_more_and_more_of_themavailabilityCheck_is_the_action_by_which_we_verify_that_a_target_URL_is_accessible_from_a_certain_country_vantagePoint_is_a_point_in_the_Internet_network_from_which_the_availabilityCheck_is_executed_to_a_targetURL__They_are_identified_by_the_nationality_of_the_internet_service_provider_hosting_them_agent_a_tool_executed_from_a_vantagePoint_this_tool_connects_to_a_target_URL_and_verify_if_the_content_is_reachable_or_not__The_purpose_of_Makhno_as_you_can_guess_is_to_map_whether_a_social_media_content_is_accessible_from_a_nation_or_not_",
+  "license": "AGPL-3.0",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "mocha --require @babel/register --recursive"
+  },
+  "browser": {
+    "fs": false
+  },
+  "dependencies": {
+    "@babel/cli": "^7.0.0",
+    "superagent": "^5.3.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.0.0",
+    "@babel/plugin-proposal-class-properties": "^7.0.0",
+    "@babel/plugin-proposal-decorators": "^7.0.0",
+    "@babel/plugin-proposal-do-expressions": "^7.0.0",
+    "@babel/plugin-proposal-export-default-from": "^7.0.0",
+    "@babel/plugin-proposal-export-namespace-from": "^7.0.0",
+    "@babel/plugin-proposal-function-bind": "^7.0.0",
+    "@babel/plugin-proposal-function-sent": "^7.0.0",
+    "@babel/plugin-proposal-json-strings": "^7.0.0",
+    "@babel/plugin-proposal-logical-assignment-operators": "^7.0.0",
+    "@babel/plugin-proposal-nullish-coalescing-operator": "^7.0.0",
+    "@babel/plugin-proposal-numeric-separator": "^7.0.0",
+    "@babel/plugin-proposal-optional-chaining": "^7.0.0",
+    "@babel/plugin-proposal-pipeline-operator": "^7.0.0",
+    "@babel/plugin-proposal-throw-expressions": "^7.0.0",
+    "@babel/plugin-syntax-dynamic-import": "^7.0.0",
+    "@babel/plugin-syntax-import-meta": "^7.0.0",
+    "@babel/preset-env": "^7.0.0",
+    "@babel/register": "^7.0.0",
+    "expect.js": "^0.3.1",
+    "mocha": "^8.0.1",
+    "sinon": "^7.2.0"
+  }
+}
