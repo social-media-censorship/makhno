@@ -1,0 +1,12 @@
+{
+  "gafam": {
+    "port": 2001
+  },
+  "submission": {
+    "port": 2002
+  },
+  "scheduled": {
+  },
+  "results": {
+  }
+}

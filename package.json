@@ -1,0 +1,44 @@
+{
+  "name": "npm",
+  "version": "0.1.0",
+  "description": "Makhno is a server side package to check social media content availability",
+  "main": "bin/systemCheckup.mjs",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tracking-exposed/makhno.git"
+  },
+  "keywords": [
+    "social-media",
+    "scraping",
+    "censorship",
+    "observatory",
+    "content-takedown"
+  ],
+  "author": "Claudio Agosti (github.com/vecna)",
+  "license": "AGPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/tracking-exposed/makhno/issues"
+  },
+  "homepage": "https://github.com/tracking-exposed/makhno#readme",
+  "dependencies": {
+    "debug": "^4.3.4",
+    "express": "^4.18.1",
+    "lodash": "^4.17.21",
+    "zx": "^7.1.0"
+  },
+  "devDependencies": {
+    "jest": "^29.1.2"
+  },
+  "jest": {
+    "verbose": true,
+    "testMatch": [
+      "./tests/*/*.[jt]s?(x)"
+    ]
+  }
+}

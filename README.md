@@ -4,26 +4,32 @@ Makhno is the tool described by the article: [New Tool Makhno will expose geogra
 
 ## Specification
 
-The file `openapi.yarl` has been generated with https://editor.swagger.io and define the API endpoints. Would be updated in an iterative fashon before becoming part of an official documentation.
+The file `openapi.yaml` has been generated with https://editor.swagger.io and define the API endpoints. Would be updated in an iterative fashon before becoming part of an official documentation.
 
 ## file tree
 
 ```
-.
-├── bin
-├── lib
-├── LICENSE
-├── README.md
-└── services
+
 ```
 
-### A design that try to be simplest as possible!
+### In order, to know:
 
-* `services/` are files that uses Express 4.x HTTP server and serve HTTP API
+* `gafam`, `results`, `scheuled`, `submission` are also the name of the http routes implemented and the name of the API specifics
+* `services/` are files representing the platform (facebook, youtube,...) supported, used by the GAFAM API
 * `bin/` are single purposes execution scripts
-* `lib/` are all the definition necessary to `services` and `bin`
+* `utils/` are all the utilities necessary, they have comment at the begnning to explain when it should be used
 * `LICENSE` is AGPL-3.0
 
+### Dependencies (handled by `npm install`)
+
+* [zx](https://github.com/google/zx), [express](https://expressjs.com/).
+* developed with node 16.x
+
+### How test is handled? 
+
+* [jest](https://jestjs.io/)
+* `npm start` aka `bin/systemCheckup.mjs`
+* `jest --collect-coverage`
 
 ### Implemented components and their role
 

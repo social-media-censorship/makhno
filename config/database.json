@@ -1,0 +1,14 @@
+{
+  "gafam": {
+     "mongodb":"mongodb://localhost:27017/makhno"
+  },
+  "submission": {
+     "mongodb":"mongodb://localhost:27017/makhno"
+  },
+  "scheduled": {
+     "mongodb":"mongodb://localhost:27017/makhno"
+  },
+  "results": {
+     "mongodb":"mongodb://localhost:27017/makhno"
+  }
+}
