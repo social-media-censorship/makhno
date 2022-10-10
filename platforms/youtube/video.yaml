@@ -1,6 +1,6 @@
 platform: youtube
 nature: video
-path: watch
+path: /watch
 param: v
 name: videoId
 example: https://www.youtube.com/watch?v=2525523323

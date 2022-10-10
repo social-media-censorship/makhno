@@ -5,9 +5,11 @@
  * and static data.
  */
 const _ = require('lodash');
+const path = require('path');
 const debug = require('debug')('utils:gafam');
+const { computeId } = require('./various');
 
-let platforms = [], natures = [];
+let platforms = [], natures = [], platformRootDir = null;
 
 function platformSupported(inputstr) {
   guaranteeLoading();
@@ -25,9 +27,69 @@ function natureSupported(inputstr) {
   throw new Error("natureSupported: not implemented yet");
 }
 
-function getNature(url) {
-  /* this function paese an URL and attirbute a nature
-   * based on the format */
+function findNature(urlo) {
+  /* this function process an URL() object and 
+   * attirbute a nature based on the format */
+  if(urlo.username.length || urlo.password.length)
+    throw new Error("username and password not expected in Makhno");
+
+  /* first step is to check if the domain is among the supported,
+   * reduce keep the first platform name with a domain list that
+   * includes URL.host */
+  const platform = _.reduce(platforms, function(memo, o, i) {
+    if(memo !== undefined)
+      return memo;
+    if(_.includes(o.domains, urlo.host))
+      return o.name;
+  }, undefined);
+
+  /* if findNature return null means the URL is not supported */
+  if(!platform)
+    return null;
+
+  /* once the platform is found, we should look the url schema */
+  const potentialMatch = _.find(natures, function(o) {
+    console.log(o.platform, platform, o.path, urlo.pathname);
+    if(o.platform !== platform)
+      return false;
+    if(o.path !== urlo.pathname)
+      return false;
+    return true;
+  });
+
+  /* if there are not match return null as the URL is not supported */
+  if(!potentialMatch)
+    return null;
+
+  console.log(JSON.stringify(potentialMatch, undefined, 4));
+  /* it is only a potential match because
+   * we still need find the Nature 'details' */
+  let details = {};
+
+  if(potentialMatch.param?.length) {
+    details[potentialMatch.name] = urlo.searchParams.get(potentialMatch.param);
+  }
+
+  if(potentialMatch.function?.length) {
+    /* we need to execute a function to interpret the URL */
+    const ff = path.join(platformRootDir, platform, potentialMatch.function)
+    const code = require(ff);
+    details = code(urlo);
+  }
+
+  if(!_.keys(details).length)
+    return null;
+
+  /* we've all the information to compile a valid Nature */
+  const nature = {
+    platform,
+    nature: potentialMatch.nature,
+    details,
+    supported: true,
+  }
+  id = computeId(JSON.stringify(nature));
+  nature.id = id;
+  return nature;
 }
 
 function guaranteeLoading(platformDir) {
@@ -44,6 +106,9 @@ function guaranteeLoading(platformDir) {
         throw new Error(`Invalid path guessing for platform ${platformDir}`);
       }
     }
+    // this can be used for dynamic loading by findNature, for example
+    platformRootDir = platformDir;
+
     const domainfile = path.join(platformDir, 'domains.yaml');
 
     if(!fs.existsSync(domainfile)) {
@@ -63,10 +128,22 @@ function guaranteeLoading(platformDir) {
     platforms = _.map(listofd, function(domains, name) {
       return {
         name,
-        domains
+        ...domains
       }
     });
     debug('Loaded %O platforms', _.map(platforms, 'name'));
+    /* Note: $platforms has this format: [{
+        "name": "youtube",
+        "domains": [
+          "www.youtube.com",
+          "youtu.be"
+        ]
+      }, {
+        "name": "facebook",
+        "domains": [
+          "www.facebook.com"
+        ]
+      }] */
 
     debug('Searching Nature files in %s/*/*.yaml', platformDir);
     const yamlfiles = _.compact(_.flatten(_.map(lsplatdir, function(subd) {
@@ -104,7 +181,7 @@ module.exports = {
   guaranteeLoading,
   platformSupported,
   natureSupported,
-  getNature,
+  findNature,
 
   platforms,
   natures

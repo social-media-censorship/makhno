@@ -5,7 +5,7 @@
  * they raise an exeption */
 
 const _ = require('lodash');
-const { platformSupported, natureSupported } = require('./gafam');
+const gafam = require('./gafam');
 const debug = require('debug')('utils:validators');
 
 function querySubmission(input) {
@@ -18,10 +18,10 @@ function querySubmission(input) {
         const ccl = _.toUpper(p[valid]).split(',');
         _.set(memo, valid, ccl);
       }
-      else if(valid === 'nature' && natureSupported(p[valid])) {
+      else if(valid === 'nature' && gafam.natureSupported(p[valid])) {
         _.set(memo, valid, p[valid]);
       }
-      else if(valid === 'platform' && platformSupported(p[valid])) {
+      else if(valid === 'platform' && gafam.platformSupported(p[valid])) {
         _.set(memo, valid, p[valid]);
       }
       /* else, simply the plausible filter mechanism wasn't present in this request */
@@ -39,13 +39,31 @@ function createSubmission(input, nature) {
    * and the submission input, to actually create a submission */
 }
 
-function processURL(input) {
+function validateNature(input) {
   /* this function uses gafam library to validate the URL and 
    * attribute a nature out of it */
+  if(!_.startsWith(input, 'http'))
+    input = `https://${input}`;
+
+  try {
+    const urlo = new URL(input);
+    const nature = gafam.findNature(urlo);
+
+    if(!nature)
+      throw new Error(`Makhno do not currently support this url [${input}]`);
+
+    debug('Nature of %s accepted as %s (%s)',
+      input, nature.platform, nature.nature);
+
+    return nature;
+  } catch(error) {
+    // console.log(input, error);
+    throw new Error(`validateNature fail: ${error.message}`);
+  }
 }
 
 module.exports = {
   querySubmission,
-  processURL,
+  validateNature,
   createSubmission,
 }

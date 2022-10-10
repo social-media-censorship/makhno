@@ -51,19 +51,28 @@ async function createSubmission(db, req, res) {
   debug("create Submission with %s", req.body);
   debug("and btw the db is", db);
 
-  /* _TODO_ handle the three different HTTP status values */
-
-  const url = validators.processURL(req.body.url);
-  const submission = validators.createSubmission(req.body);
-  /* should have this format {
+  /* body should have this format {
   "url": "string",
   "countryCodes": [
     "string"
   ] } */
+
+  const nature = validators.processURL(req.body.url);
+  /* This API has potentially three HTTP return values:
+   * duplicated (handled below),
+   * inserted (default),
+   * error (default error handler */
+  const submission = validators.createSubmission(req.body?.countryCodes, nature);
   debug('Submission ready to be added: %O', submission)
-  const retval = await database.createSubmission(db, submission);
-  /* the return value is the same format as getSubmission */
-  return retval;
+  const inserted = await database.createSubmission(db, submission);
+  if(inserted === false) {
+    /* it returns null only when is duplicated */
+    res.status(202);
+  }
+  /* the return value is the same format as getSubmission in both non-error-case */
+  return {
+    submission
+  };
 }
 
 async function getSubmission(db, expressApp) {
