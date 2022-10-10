@@ -1,20 +1,20 @@
 openapi: 3.0.3
 info:
-  title: Makhno API design 
+  title: Makhno API design
   description: |-
-   The endpoint sequence described here is part of the Makhno suite. The purpose is to define a protocol by which a client can request reachability checks from our infrastructure.
-   
-   ## There are some reserved words that we use in this document:
-   
-   `target URL`: this is the URL of a social media platform that we want to monitor. the subjects covered in this framework, are, for the most part. `target URLs`. they can be youtube videos or facebook posts. we are talking about a social media platform URL (not all of them are supported, of course, and different versions prograd in supporting more and more of them)
-   
-   `availabilityCheck`: is the action by which we verify that a `target URL` is accessible from a certain country.
-   
-   `vantagePoint`: is a point in the Internet network from which the availabilityCheck is executed to a targetURL. They are identified by the nationality of the internet service provider hosting them.
-   
-   `agent`: a tool executed from a `vantagePoint`, this tool connects to a `target URL` and verify if the content is reachable or not.
-   
-   ## The purpose of Makhno, as you can guess, is to map whether a social media content is accessible from a nation or not.
+    The endpoint sequence described here is part of the Makhno suite. The purpose is to define a protocol by which a client can request reachability checks from our infrastructure.
+
+    ## There are some reserved words that we use in this document:
+
+    `target URL`: this is the URL of a social media platform that we want to monitor. the subjects covered in this framework, are, for the most part. `target URLs`. they can be youtube videos or facebook posts. we are talking about a social media platform URL (not all of them are supported, of course, and different versions prograd in supporting more and more of them)
+
+    `availabilityCheck`: is the action by which we verify that a `target URL` is accessible from a certain country.
+
+    `vantagePoint`: is a point in the Internet network from which the availabilityCheck is executed to a targetURL. They are identified by the nationality of the internet service provider hosting them.
+
+    `agent`: a tool executed from a `vantagePoint`, this tool connects to a `target URL` and verify if the content is reachable or not.
+
+    ## The purpose of Makhno, as you can guess, is to map whether a social media content is accessible from a nation or not.
   termsOfService: https://makhno.net/tos/
   contact:
     email: technology@makhno.net
@@ -29,26 +29,19 @@ servers:
   - url: https://makhno.net/api/v1
 tags:
   - name: GAFAM
-    description: parsers and map of supported platforms   
-#    externalDocs:
-#      description: Find out more
-#      url: http://swagger.io
+    description: parsers and map of supported platforms
   - name: submission
     description: Submit `target URL` to be tested by Makhno
-#    externalDocs:
-#      description: Find out more about our store
-#      url: http://swagger.io
   - name: scheduled
     description: Query the `availabilityCheck` scheduled so `agent` can connect
   - name: results
     description: retrieved the list of results collected by the agents in the network
-    
 paths:
   /GAFAM/supported:
     post:
       tags:
         - GAFAM
-      summary: Return if a `target URL` belongs to a supported platform
+      summary: Return if a "targetURL" belongs to a supported platform
       description: it expect in the payload a target URL, it return with what normally is referred as Nature, so the nature of the URL. such as, a youtube video or a tiktok channel.
       operationId: GAFAMsupported
       requestBody:
@@ -83,12 +76,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SupportedUrlFormatList'
-
   /GAFAM/parse:
     post:
       tags:
         - GAFAM
-      summary: this endpoint receives the payload produced from one of the `agent` collecting evidence.
+      summary: this endpoint receives the payload produced from one of the "agent" collecting evidence.
       description: An API that process HTML and parse it, receive a `targetURL` and before parsing it, it also re-check if the url is supported, by using the same internal validation also provided by the API `/GAFAM/supported`
       operationId: GAFAMparse
       requestBody:
@@ -110,36 +102,35 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ParseResult'          
+                $ref: '#/components/schemas/ParseResult'
             application/xml:
               schema:
                 $ref: '#/components/schemas/ParseResult'
-        '405':
-          description: Invalid Input
         '404':
           description: targetURL validation fail
+        '405':
+          description: Invalid Input
         '409':
           description: No valid HTML received
   /submission:
     get:
       tags:
         - submission
-      summary: Know which URL have been submitted (not used by agent)
+      summary: Know which URL have been submitted (note this is NOT used by the agents)
       description: This is the endpoint that manages a collection of objects into the database; It returns the list of `targetURL` that match the criterias specify by the `agent`, it can also return a default if not filtering is provided; it is worthy to list existing requested URL and identify their presence in the infrastructure. the `id` mentioned here is also referred as `submissionId` in other endpoints.
       parameters:
         - name: filter
           in: query
-          description: query parameters to filter the URL submitted in the past, that might be tested by an agent
+          description: query parameters to filter the submission collection present in the database, that potentially might be or have been tested if content it is still served. It is a string of encoded JSON.
           schema:
-            type: string
-  # perhaps the parameters should be described and broke down (platform, date, countryCodes)
+            $ref: '#/components/schemas/SubmissionFilter'
       responses:
         '200':
           description: List of matching submission with your query, ordered by the oldest
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SubmissionList'          
+                $ref: '#/components/schemas/SubmissionList'
             application/xml:
               schema:
                 $ref: '#/components/schemas/SubmissionList'
@@ -165,20 +156,20 @@ paths:
         required: true
       responses:
         '200':
-          description: The submittion was valid and has been inserted
+          description: The submission was valid and has been inserted
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SubmissionDetail'          
+                $ref: '#/components/schemas/SubmissionDetail'
             application/xml:
               schema:
                 $ref: '#/components/schemas/SubmissionDetail'
         '202':
-          description: The submittion was valid, but already present
+          description: The submission was valid, but already present
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SubmissionDetail'          
+                $ref: '#/components/schemas/SubmissionDetail'
             application/xml:
               schema:
                 $ref: '#/components/schemas/SubmissionDetail'
@@ -197,14 +188,13 @@ paths:
           description: query parameters to filter by platform, day, and two letter country code
           schema:
             type: string
-  # perhaps the parameters should be described and broke down (platform, date, countryCodes, skip)
       responses:
         '200':
           description: List of matching submission with your query, ordered by the oldest
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ScheduledList'          
+                $ref: '#/components/schemas/ScheduledList'
             application/xml:
               schema:
                 $ref: '#/components/schemas/ScheduledList'
@@ -234,7 +224,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ScheduledActivity'          
+                $ref: '#/components/schemas/ScheduledActivity'
             application/xml:
               schema:
                 $ref: '#/components/schemas/ScheduledActivity'
@@ -243,7 +233,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ScheduledActivity'          
+                $ref: '#/components/schemas/ScheduledActivity'
             application/xml:
               schema:
                 $ref: '#/components/schemas/ScheduledActivity'
@@ -262,14 +252,13 @@ paths:
           description: query parameters to filter by platform, day, and two letter country code
           schema:
             type: string
-  # perhaps the parameters should be described and broke down (platform, date, countryCodes, skip)
       responses:
         '200':
           description: List of matching submission with your query, ordered by the oldest
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TestResultList'          
+                $ref: '#/components/schemas/TestResultList'
             application/xml:
               schema:
                 $ref: '#/components/schemas/TestResultList'
@@ -300,7 +289,6 @@ paths:
           description: The result was already present
         '405':
           description: Invalid Input
-
 components:
   schemas:
     ProposedUrl:
@@ -330,7 +318,7 @@ components:
     SupportedUrlFormatList:
       type: array
       items:
-        $ref: "#/components/schemas/SupportedUrlFormat"
+        $ref: '#/components/schemas/SupportedUrlFormat'
     SupportedUrlFormat:
       type: object
       properties:
@@ -370,6 +358,18 @@ components:
         id:
           type: string
           description: the unique ID tight to targetURL, that can be used to fetch other results. This is calculated by hashing the URL.
+    SubmissionFilter:
+      type: object
+      properties:
+        platform:
+          type: string
+          description: a platform name you want to filter by
+        nature:
+          type: string
+          description: the nature you want to filter by
+        countryCode:
+          type: string
+          description: two letter country code
     SubmissionList:
       type: array
       items:
@@ -406,7 +406,7 @@ components:
             type: string
         testId:
           type: string
-          description: generated by 
+          description: generated by
     ScheduledList:
       type: array
       items:
@@ -472,6 +472,4 @@ components:
     TestResultList:
       type: array
       items:
-        $ref: "#/components/schemas/TestResult"
-    
-          
+        $ref: '#/components/schemas/TestResult'

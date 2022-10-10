@@ -10,3 +10,6 @@ node_modules/
 
 # Generated from swagger
 generated/
+
+# jest coverage
+coverage/

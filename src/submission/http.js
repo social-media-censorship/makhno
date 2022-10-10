@@ -7,7 +7,7 @@
 const debug = require('debug')('submission:http');
 const webutils = require('../../utils/webutils');
 const database = require('../../utils/database');
-const validator = require('../../validator');
+const validators = require('../../utils/validators');
 const _ = require('lodash');
 
 async function querySubmission(db, req, res) {
@@ -24,11 +24,9 @@ async function querySubmission(db, req, res) {
   debug("Queries submission with %s", req.params.filter);
   debug("and btw the db is", db);
 
-  const filter = validator.querySubmission(req.params.filter);
+  const filter = validators.querySubmission(req.params.filter);
   const retval = await database.querySubmission(db, filter);
-  return retval;
-
-  /* [{
+  /* it should have the format [{
     "url": {
       "platform": "string",
       "nature": "string",
@@ -38,16 +36,34 @@ async function querySubmission(db, req, res) {
     },
     "countryCodes": [
       "string"
-    ]
-  }] */
-
+    ]                          }] */
+  return retval;
 };
 
 async function createSubmission(db, req, res) {
+  /* The payload contains a `targetURL` and one or more country 
+   * code, in the hopes some `agent` that runs in the right ISP,
+   * would pull this submission and perform an `availabilityCheck` 
+   * from their `vantagePoint`. The `target URL` is validated 
+   * in the same way as in the /GAFAM/ endpoints. */
+
   console.log(db, req, res);
   debug("create Submission with %s", req.body);
   debug("and btw the db is", db);
-  return { xxx: true };
+
+  /* _TODO_ handle the three different HTTP status values */
+
+  const url = validators.processURL(req.body.url);
+  const submission = validators.createSubmission(req.body);
+  /* should have this format {
+  "url": "string",
+  "countryCodes": [
+    "string"
+  ] } */
+  debug('Submission ready to be added: %O', submission)
+  const retval = await database.createSubmission(db, submission);
+  /* the return value is the same format as getSubmission */
+  return retval;
 }
 
 async function getSubmission(db, expressApp) {

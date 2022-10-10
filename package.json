@@ -34,11 +34,5 @@
   },
   "devDependencies": {
     "jest": "^29.1.2"
-  },
-  "jest": {
-    "verbose": true,
-    "testMatch": [
-      "./tests/*/*.[jt]s?(x)"
-    ]
   }
 }
