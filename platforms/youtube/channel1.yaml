@@ -1,0 +1,6 @@
+platform: youtube
+nature: channel
+path: /c
+function: pickLastChunk
+name: channel
+example: https://www.youtube.com/c/%E4%BA%AC%E9%83%BD%E3%81%AF%E3%82%93%E3%81%AA%E3%82%8A%E3%83%81%E3%83%A3%E3%83%B3%E3%83%8D%E3%83%AB

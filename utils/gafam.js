@@ -41,20 +41,17 @@ function tryPotentialMatches(urlo, potentialMatches) {
       return memo;
     /* once is found keep the first good */
 
-    if(matched.path == urlo.pathname)
-
-    /* the YAML files might have a 'param' (has priority),
+    /* the YAML files might have a 'param' (and it has priority),
        or a function implemented as special extraction code */
-
     if(matched.param?.length) {
       memo[matched.name] = urlo.searchParams.get(matched.param);
-      debug("1) assigned detail as %O", memo);
+      debug("assigned detail via param as %O", memo);
     } else if(matched.function?.length) {
       /* we need to execute a function to interpret the URL */
-      const ff = path.join(platformRootDir, matched.platform, matched.function)
-      const { plugin } = require(ff);
-      memo = plugin(urlo);
-      debug("2) assigned detail as %O", memo);
+      const functionFile = path.join(platformRootDir, matched.platform, matched.function)
+      const { plugin } = require(functionFile);
+      memo = plugin(urlo, matched);
+      debug("assigned detail via function as %O", memo);
     }
 
     return memo;
@@ -87,7 +84,8 @@ function findNature(urlo) {
   /* once the platform is found, we should check if the domain match */
   const potentialMatches = _.filter(natures, function(o) {
     // console.log(`_.find in natures: o${JSON.stringify(o)}, p|${platform}, ${urlo.pathname}`);
-    return (o.platform === platform && o.path === urlo.pathname)
+    return (o.platform === platform &&
+      _.startsWith(urlo.pathname, o.path) )
   }) || [];
 
   /* if there are not match return null as the URL is not supported */

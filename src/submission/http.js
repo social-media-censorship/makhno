@@ -53,7 +53,7 @@ async function createSubmission(db, req, res) {
   /* This API has potentially three HTTP return values:
    * duplicated (handled below),
    * inserted (default),
-   * error (default error handler */
+   * error (default error handler, or specific res.status() ) */
   const submission = validators.createSubmission(req.body?.countryCodes, nature);
   debug('Submission ready to be added: %O', submission)
   const inserted = await database.createSubmission(db, submission);

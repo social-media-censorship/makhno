@@ -1,0 +1,6 @@
+platform: youtube
+nature: channel
+path: /user/
+function: pickLastChunk
+name: channel
+example: https://www.youtube.com/user/dish

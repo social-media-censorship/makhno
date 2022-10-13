@@ -19,39 +19,55 @@ describe('querySubmission input validator', () => {
     expect(rv)
       .toHaveProperty('countryCodes', ["DE", "IT", "FR"]);
   });
-
 });
-
 
 describe('validateNature format and return Nature', () => {
 
-  test(`validateNature should fail on invalid URL`, () => {
+  test(`should fail on invalid URL`, () => {
     const invaURL = 'a random string that is not an URL';
     expect(() => validators.validateNature(invaURL)).toThrow();
   });
 
-  test(`validateNature should not find a Nature for random.com`, () => {
+  test(`should not find a Nature for random.com`, () => {
     const randURL = 'https://www.random.com/stuff?with=params';
     expect(() => validators.validateNature(randURL)).toThrow();
   });
   
-  test(`validateNature should return a Nature of a yt video`, () => {
+  test(`should return Nature of a standard yt video`, () => {
     const ytvid = 'https://www.youtube.com/watch?v=theYTvideoID';
     const rv = validators.validateNature(ytvid);
     expect(rv).toHaveProperty('platform', 'youtube');
     expect(rv).toHaveProperty('nature', 'video');
+    expect(rv).toHaveProperty('details.videoId', 'theYTvideoID');
   });
 
-  test(`validateNature should return a Nature for three kinds of yt profile`, () => {
+  test(`should return Nature of a yt video URL-shortened`, () => {
+    const ytvid = 'https://youtu.be/n61ULEU7CO0';
+    const rv = validators.validateNature(ytvid);
+    expect(rv).toHaveProperty('platform', 'youtube');
+    expect(rv).toHaveProperty('nature', 'video');
+    expect(rv).toHaveProperty('details.videoId', 'n61ULEU7CO0');
+  });
+
+  test(`should return Nature of a shorts yt video`, () => {
+    const ytvid = 'https://www.youtube.com/shorts/IX3nMJaUS-Q';
+    const rv = validators.validateNature(ytvid);
+    expect(rv).toHaveProperty('platform', 'youtube');
+    expect(rv).toHaveProperty('nature', 'video');
+    expect(rv).toHaveProperty('details.videoId', 'IX3nMJaUS-Q');
+  });
+
+  test(`should return a Nature for three kinds of yt profile`, () => {
     const channels = [ 'https://www.youtube.com/c/something',
                        'https://www.youtube.com/user/something',
                        'https://www.youtube.com/channel/something' ];
     _.each(channels, function(churl) {
         const rv = validators.validateNature(churl);
         expect(rv).toHaveProperty('platform', 'youtube');
-        expect(rv).toHaveProperty('nature', 'profile');
+        expect(rv).toHaveProperty('nature', 'channel');
         expect(rv).toHaveProperty('details.channel', 'something');
-    })
+    });
+
   });
 
   test(`validateNature should return a Nature of tiktok video`, () => {

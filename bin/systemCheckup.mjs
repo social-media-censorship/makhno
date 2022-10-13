@@ -18,8 +18,8 @@ const payloadsDir = path.join('tests', '_payloads');
 async function testSubmission() {
   const server = `http://localhost:${ports.submission}`;
   const sfile = path.join(payloadsDir, 'submission.json')
+  debug("Opening file %s");
   const submissionPayload = await fs.readJson(sfile);
-  debug("Opening %s read %O submission", sfile, submissionPayload);
   let payload = {
     method: 'POST',
     headers: {
@@ -28,6 +28,7 @@ async function testSubmission() {
     body: JSON.stringify(submissionPayload)
   };
 
+  debug("Sending submission payload %O", submissionPayload);
   const c1 = await fetch(`${server}/submission`, payload);
   if(c1.size) {
     const r = await c1.json();
@@ -42,6 +43,7 @@ async function testSubmission() {
 
   /* update the previously used payload with other two URLs */
   submissionPayload.url = "https://www.youtube.com/shorts/IX3nMJaUS-Q";
+  debug("Sending submission payload %O", submissionPayload);
   payload.body = JSON.stringify(submissionPayload);
   const c3 = await fetch(`${server}/submission`, payload);
   if(c3.size) {
@@ -50,6 +52,7 @@ async function testSubmission() {
   }
 
   submissionPayload.url = "https://youtu.be/n61ULEU7CO0";
+  debug("Sending submission payload %O", submissionPayload);
   payload.body = JSON.stringify(submissionPayload);
   const c4 = await fetch(`${server}/submission`, payload);
   if(c4.size) {

@@ -34,10 +34,18 @@ function querySubmission(input) {
   }
 }
 
-function createSubmission(input, nature) {
-  console.log(`xxx createSubmission ${input} ${nature}`);
+function createSubmission(countryCodes, nature) {
   /* this function merge the nature (returned from processURL)
    * and the submission input, to actually create a submission */
+  nature.creationTime = new Date();
+
+  if(!countryCodes || countryCodes.length === 0) {
+    debug("A submission without country codes to %s", nature.href);
+    nature.countryCodes = [];
+  } else {
+    nature.countryCodes = countryCodes;
+  }
+  return nature;
 }
 
 function validateNature(input) {
