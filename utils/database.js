@@ -7,10 +7,12 @@
 
 
 async function querySubmission(db, filter) {
-
+  console.log("querySubmission", db, filter);
 }
 
-async function createSubmission(db, )
+async function createSubmission(db, payload) {
+  console.log("createSubmission", db, payload);
+}
 
 module.exports = {
   querySubmission,

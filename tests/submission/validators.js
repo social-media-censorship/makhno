@@ -13,11 +13,11 @@ describe('querySubmission input validator', () => {
   });
 
   test(`validate by country code (DE,it,Fr)`, () => {
-    const filter = { countryCode: ["DE", "it", "Fr"] };
+    const filter = { countryCodes: ["DE", "it", "Fr"] };
     const fstring = JSON.stringify(filter);
     const rv = validators.querySubmission(fstring);
     expect(rv)
-      .toHaveProperty('countryCode', ["DE", "IT", "FR"]);
+      .toHaveProperty('countryCodes', ["DE", "IT", "FR"]);
   });
 
 });

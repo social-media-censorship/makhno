@@ -9,6 +9,7 @@
  */
 
 const express = require('express')
+const bodyParser = require('body-parser');
 const debug = require('debug')('utils:express');
 
 async function bindHTTPServer(routeConfig, serverConfig, dbConfig) {
@@ -18,6 +19,9 @@ async function bindHTTPServer(routeConfig, serverConfig, dbConfig) {
     expressApp.listen(serverConfig.port, () => {
         debug("Binded sucessfully port %d", serverConfig.port);
     });
+
+    expressApp.use(bodyParser.json());
+    expressApp.use(bodyParser.urlencoded({ extended: true }));
 
     for (const route of routeConfig.routes) {
        await route(dbConfig, expressApp);

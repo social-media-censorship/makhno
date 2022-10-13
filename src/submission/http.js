@@ -19,13 +19,12 @@ async function querySubmission(db, req, res) {
    * and identify their presence in the infrastructure. 
    * the id mentioned here is also referred as submissionId 
    * in other endpoints. */
-  console.log(db, req, res);
-
-  debug("Queries submission with %s", req.params.filter);
-  debug("and btw the db is", db);
 
   const filter = validators.querySubmission(req.params.filter);
+  /* The validator parse JSON and validate it's fields,
+     The database function pick these fields for the right DB driver */
   const retval = await database.querySubmission(db, filter);
+
   /* it should have the format [{
     "url": {
       "platform": "string",
@@ -47,17 +46,10 @@ async function createSubmission(db, req, res) {
    * from their `vantagePoint`. The `target URL` is validated 
    * in the same way as in the /GAFAM/ endpoints. */
 
-  console.log(db, req, res);
-  debug("create Submission with %s", req.body);
-  debug("and btw the db is", db);
+  /* body should have this format
+   * { "url": "string", "countryCodes": [ "string" ] } */
+  const nature = validators.validateNature(req.body.url);
 
-  /* body should have this format {
-  "url": "string",
-  "countryCodes": [
-    "string"
-  ] } */
-
-  const nature = validators.processURL(req.body.url);
   /* This API has potentially three HTTP return values:
    * duplicated (handled below),
    * inserted (default),
@@ -78,10 +70,11 @@ async function createSubmission(db, req, res) {
 async function getSubmission(db, expressApp) {
   expressApp.get('/submission/:filter', async (req, res) => {
     try {
-      const retval = await _.partial(querySubmission, db);
+      const f = _.partial(querySubmission, db);
+      const retval = await f(req, res);
       res.json(retval);
     } catch(error) {
-      webutils.handeError(error, req, res, "querySubmission");
+      webutils.handleError(error, req, res, "querySubmission");
     }
   });
 }
@@ -89,10 +82,11 @@ async function getSubmission(db, expressApp) {
 async function postSubmission(db, expressApp) {
   expressApp.post('/submission/', async (req, res) => {
     try {
-      const retval = await _.partial(createSubmission, db);
+      const f = _.partial(createSubmission, db);
+      const retval = await f(req, res);
       res.json(retval);
     } catch(error) {
-      webutils.handeError(error, req, res, "createSubmission");
+      webutils.handleError(error, req, res, "createSubmission");
     }
   });
 }

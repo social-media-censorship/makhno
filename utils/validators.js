@@ -13,8 +13,8 @@ function querySubmission(input) {
   try {
     const p = JSON.parse(input);
     /* the only acceptable patterns at the moment is by platform, nature and countryCode */
-    const retval = _.reduce(['platform', 'nature', 'countryCode'], function(memo, valid) {
-      if(valid === 'countryCode') {
+    const retval = _.reduce(['platform', 'nature', 'countryCodes'], function(memo, valid) {
+      if(valid === 'countryCodes' && p[valid]?.length) {
         const ccl = _.toUpper(p[valid]).split(',');
         _.set(memo, valid, ccl);
       }
@@ -35,6 +35,7 @@ function querySubmission(input) {
 }
 
 function createSubmission(input, nature) {
+  console.log(`xxx createSubmission ${input} ${nature}`);
   /* this function merge the nature (returned from processURL)
    * and the submission input, to actually create a submission */
 }
@@ -57,7 +58,6 @@ function validateNature(input) {
 
     return nature;
   } catch(error) {
-    // console.log(input, error);
     throw new Error(`validateNature fail: ${error.message}`);
   }
 }

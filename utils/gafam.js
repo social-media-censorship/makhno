@@ -27,7 +27,44 @@ function natureSupported(inputstr) {
   throw new Error("natureSupported: not implemented yet");
 }
 
+function tryPotentialMatches(urlo, potentialMatches) {
+  /* here we've only the YAML-imported codes that matched 
+   * platofrm and path, so we should be really close to the 
+   * match and normally the potential extractor is just 1, but
+   * you never know when dealing with large platform URL styles... */
+  debug("Trying %d potential nature extractor for %s",
+    potentialMatches.length, urlo.href);
+
+  const details = _.reduce(potentialMatches, function(memo, matched) {
+
+    if(_.keys(memo).length)
+      return memo;
+    /* once is found keep the first good */
+
+    if(matched.path == urlo.pathname)
+
+    /* the YAML files might have a 'param' (has priority),
+       or a function implemented as special extraction code */
+
+    if(matched.param?.length) {
+      memo[matched.name] = urlo.searchParams.get(matched.param);
+      debug("1) assigned detail as %O", memo);
+    } else if(matched.function?.length) {
+      /* we need to execute a function to interpret the URL */
+      const ff = path.join(platformRootDir, matched.platform, matched.function)
+      const { plugin } = require(ff);
+      memo = plugin(urlo);
+      debug("2) assigned detail as %O", memo);
+    }
+
+    return memo;
+  }, {});
+  return details;
+}
+
 function findNature(urlo) {
+  guaranteeLoading();
+
   /* this function process an URL() object and 
    * attirbute a nature based on the format */
   if(urlo.username.length || urlo.password.length)
@@ -36,7 +73,7 @@ function findNature(urlo) {
   /* first step is to check if the domain is among the supported,
    * reduce keep the first platform name with a domain list that
    * includes URL.host */
-  const platform = _.reduce(platforms, function(memo, o, i) {
+  const platform = _.reduce(platforms, function(memo, o) {
     if(memo !== undefined)
       return memo;
     if(_.includes(o.domains, urlo.host))
@@ -47,48 +84,39 @@ function findNature(urlo) {
   if(!platform)
     return null;
 
-  /* once the platform is found, we should look the url schema */
-  const potentialMatch = _.find(natures, function(o) {
-    console.log(o.platform, platform, o.path, urlo.pathname);
-    if(o.platform !== platform)
-      return false;
-    if(o.path !== urlo.pathname)
-      return false;
-    return true;
-  });
+  /* once the platform is found, we should check if the domain match */
+  const potentialMatches = _.filter(natures, function(o) {
+    // console.log(`_.find in natures: o${JSON.stringify(o)}, p|${platform}, ${urlo.pathname}`);
+    return (o.platform === platform && o.path === urlo.pathname)
+  }) || [];
 
   /* if there are not match return null as the URL is not supported */
-  if(!potentialMatch)
+  if(!potentialMatches.length) {
+    debug("No potential matches with %s and %s",
+      platform, urlo.pathname);
     return null;
-
-  console.log(JSON.stringify(potentialMatch, undefined, 4));
-  /* it is only a potential match because
-   * we still need find the Nature 'details' */
-  let details = {};
-
-  if(potentialMatch.param?.length) {
-    details[potentialMatch.name] = urlo.searchParams.get(potentialMatch.param);
   }
 
-  if(potentialMatch.function?.length) {
-    /* we need to execute a function to interpret the URL */
-    const ff = path.join(platformRootDir, platform, potentialMatch.function)
-    const code = require(ff);
-    details = code(urlo);
-  }
+  /* it is a potential match because it might be more than
+   * one match, and we need to find the correct 'details' */
+  const details = tryPotentialMatches(urlo, potentialMatches);
 
-  if(!_.keys(details).length)
+  if(!_.keys(details).length) {
+    debug("%s: no details extracted from %s",
+      platform, urlo.href);
     return null;
+  }
 
   /* we've all the information to compile a valid Nature */
   const nature = {
     platform,
-    nature: potentialMatch.nature,
+    nature: potentialMatches[0].nature,
     details,
     supported: true,
   }
   id = computeId(JSON.stringify(nature));
   nature.id = id;
+  debug("Nature is ready: %O", nature);
   return nature;
 }
 
@@ -143,7 +171,7 @@ function guaranteeLoading(platformDir) {
         "domains": [
           "www.facebook.com"
         ]
-      }] */
+      }], useful only to link a domain to a name */
 
     debug('Searching Nature files in %s/*/*.yaml', platformDir);
     const yamlfiles = _.compact(_.flatten(_.map(lsplatdir, function(subd) {
@@ -156,7 +184,7 @@ function guaranteeLoading(platformDir) {
         if(_.endsWith(fname, '.yaml')) {
           return path.join(subdpath, fname);
         } else {
-          debug('ignored file %d in %s as non-yaml', fname, d);
+          debug('Ignored file %s in %s as non-yaml', fname, subdpath);
         }
       });
     })));

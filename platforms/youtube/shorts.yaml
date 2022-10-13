@@ -1,0 +1,6 @@
+platform: youtube
+nature: video
+path: /shorts
+function: pickLastVideoId
+name: videoId
+example: https://www.youtube.com/shorts/IX3nMJaUS-Q
