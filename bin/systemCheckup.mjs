@@ -15,6 +15,13 @@ const ports = {
 
 const payloadsDir = path.join('tests', '_payloads');
 
+async function report(retval, msg) {
+  if(retval.size) {
+    const r = await retval.json();
+    debug("%s: %O", msg, r);
+  }
+}
+
 async function testSubmission() {
   const server = `http://localhost:${ports.submission}`;
   const sfile = path.join(payloadsDir, 'submission.json')
@@ -28,38 +35,43 @@ async function testSubmission() {
     body: JSON.stringify(submissionPayload)
   };
 
+  /* ------------------------------- */
   debug("Sending submission payload %O", submissionPayload);
-  const c1 = await fetch(`${server}/submission`, payload);
-  if(c1.size) {
-    const r = await c1.json();
-    debug("POST to submission (normal): %O", r);
-  }
+  await report(
+    await fetch(`${server}/submission`, payload),
+    "POST to submission (normal)"
+  );
 
-  const c2 = await fetch(`${server}/submission/${JSON.stringify({platform:'youtube'})}`);
-  if(c2.size) {
-    const r = await c2.json();
-    debug("GET submission (youtube normal URL only): %O", r);
-  }
+  await report(
+    await fetch(`${server}/submission/${JSON.stringify({platform:'youtube'})}`),
+    "GET submission (youtube normal URL only)"
+  );
 
   /* update the previously used payload with other two URLs */
   submissionPayload.url = "https://www.youtube.com/shorts/IX3nMJaUS-Q";
   debug("Sending submission payload %O", submissionPayload);
   payload.body = JSON.stringify(submissionPayload);
-  const c3 = await fetch(`${server}/submission`, payload);
-  if(c3.size) {
-    const r = await c3.json();
-    debug("POST to submission (short): %O", r);
-  }
+  await report(
+    await fetch(`${server}/submission`, payload),
+    "POST to submission (short)"
+  );
 
   submissionPayload.url = "https://youtu.be/n61ULEU7CO0";
   debug("Sending submission payload %O", submissionPayload);
   payload.body = JSON.stringify(submissionPayload);
-  const c4 = await fetch(`${server}/submission`, payload);
-  if(c4.size) {
-    const r = await c4.json();
-    debug("POST to submission (url shortened): %O", r);
-  }
+  await report(
+    await fetch(`${server}/submission`, payload),
+    "POST to submission (url shortened)"
+  );
 
+  /* tiktok */
+  submissionPayload.url = "https://www.tiktok.com/@rtl.sport/video/7154111468428856582";
+  debug("Sending submission payload %O", submissionPayload);
+  payload.body = JSON.stringify(submissionPayload);
+  await report(
+    await fetch(`${server}/submission`, payload),
+    "POST to submission (tiktok video url)"
+  );
 }
 
 async function testGAFAM() {
