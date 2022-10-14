@@ -1,0 +1,6 @@
+platform: tiktok
+nature: video
+path: /@
+function: pickVideoInfo
+name: video
+example: https://www.tiktok.com/@rtl.sport/video/7154111468428856582?...

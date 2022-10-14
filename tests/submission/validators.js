@@ -12,6 +12,14 @@ describe('querySubmission input validator', () => {
       .toHaveProperty('platform', 'youtube');
   });
 
+  test(`validate by platform (tiktok)`, () => {
+    const filter = { platform: 'tiktok' };
+    const fstring = JSON.stringify(filter);
+    const rv = validators.querySubmission(fstring);
+    expect(rv)
+      .toHaveProperty('platform', 'tiktok');
+  });
+
   test(`validate by country code (DE,it,Fr)`, () => {
     const filter = { countryCodes: ["DE", "it", "Fr"] };
     const fstring = JSON.stringify(filter);
@@ -71,11 +79,20 @@ describe('validateNature format and return Nature', () => {
   });
 
   test(`validateNature should return a Nature of tiktok video`, () => {
-
+    const tkvid = 'https://www.tiktok.com/@rtl.sport/video/7154111468428856582';
+    const rv = validators.validateNature(tkvid);
+    expect(rv).toHaveProperty('platform', 'tiktok');
+    expect(rv).toHaveProperty('nature', 'video');
+    expect(rv).toHaveProperty('details.videoId', '7154111468428856582');
+    expect(rv).toHaveProperty('details.channel', '@rtl.sport');
   });
 
   test(`validateNature should return a Nature of tiktok profile`, () => {
-
+    const tkprof = 'https://www.tiktok.com/@battlebots';
+    const rv = validators.validateNature(tkprof);
+    expect(rv).toHaveProperty('platform', 'tiktok');
+    expect(rv).toHaveProperty('nature', 'channel');
+    expect(rv).toHaveProperty('details.channel', '@battlebots');
   });
 
 })

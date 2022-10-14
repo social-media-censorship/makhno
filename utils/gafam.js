@@ -35,6 +35,7 @@ function tryPotentialMatches(urlo, potentialMatches) {
   debug("Trying %d potential nature extractor for %s",
     potentialMatches.length, urlo.href);
 
+  /* we also need to take 'nature' from the correct match */
   const details = _.reduce(potentialMatches, function(memo, matched) {
 
     if(_.keys(memo).length)
@@ -44,14 +45,23 @@ function tryPotentialMatches(urlo, potentialMatches) {
     /* the YAML files might have a 'param' (and it has priority),
        or a function implemented as special extraction code */
     if(matched.param?.length) {
-      memo[matched.name] = urlo.searchParams.get(matched.param);
+      memo.details = {};
+      memo.details[matched.name] = urlo.searchParams.get(matched.param);
+      memo.nature = matched.nature;
       debug("assigned detail via param as %O", memo);
     } else if(matched.function?.length) {
       /* we need to execute a function to interpret the URL */
       const functionFile = path.join(platformRootDir, matched.platform, matched.function)
       const { plugin } = require(functionFile);
-      memo = plugin(urlo, matched);
-      debug("assigned detail via function as %O", memo);
+      const produced = plugin(urlo, matched);
+      if(produced !== null) {
+        memo.details = produced;
+        memo.nature = matched.nature;
+        debug("assigned detail via function as %O", memo);
+      } else {
+        debug("function from %s failed with %s",
+          matched.function, urlo.href);
+      }
     }
 
     return memo;
@@ -108,8 +118,7 @@ function findNature(urlo) {
   /* we've all the information to compile a valid Nature */
   const nature = {
     platform,
-    nature: potentialMatches[0].nature,
-    details,
+    ...details,
     supported: true,
   }
   id = computeId(JSON.stringify(nature));

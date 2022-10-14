@@ -1,0 +1,6 @@
+platform: tiktok
+nature: channel
+path: /@
+function: filterChannelOnly
+name: channel
+example: https://www.tiktok.com/@battlebots
