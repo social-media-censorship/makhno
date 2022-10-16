@@ -55,9 +55,10 @@ async function createSubmission(db, req, res) {
    * inserted (default),
    * error (default error handler, or specific res.status() ) */
   const submission = validators.createSubmission(req.body?.countryCodes, nature);
-  debug('Submission ready to be added: %O', submission)
+  debug('Ready to add %s %s (%s)', submission.platform, submission.nature, submission.id);
   const inserted = await database.createSubmission(db, submission);
   if(inserted === false) {
+    debug("Not inserted (already present in DB)");
     /* it returns null only when is duplicated */
     res.status(202);
   }

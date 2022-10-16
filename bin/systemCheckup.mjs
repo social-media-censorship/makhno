@@ -18,8 +18,9 @@ const payloadsDir = path.join('tests', '_payloads');
 async function report(retval, msg) {
   if(retval.size) {
     const r = await retval.json();
-    debug("%s: %O", msg, r);
-  }
+    debug("(%d) %s: %O", retval.status, msg, r);
+  } else
+    debug("Empty answer, HTTP status code: %d", retval.status);
 }
 
 async function testSubmission() {

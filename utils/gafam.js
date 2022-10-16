@@ -48,7 +48,7 @@ function tryPotentialMatches(urlo, potentialMatches) {
       memo.details = {};
       memo.details[matched.name] = urlo.searchParams.get(matched.param);
       memo.nature = matched.nature;
-      debug("assigned detail via param as %O", memo);
+      // debug("Assigned detail via param as %O", memo);
     } else if(matched.function?.length) {
       /* we need to execute a function to interpret the URL */
       const functionFile = path.join(platformRootDir, matched.platform, matched.function)
@@ -57,7 +57,7 @@ function tryPotentialMatches(urlo, potentialMatches) {
       if(produced !== null) {
         memo.details = produced;
         memo.nature = matched.nature;
-        debug("assigned detail via function as %O", memo);
+        // debug("Assigned detail via function as %O", memo);
       } else {
         // debug("function from %s failed with %s", matched.function, urlo.href);
 	// don't enable this as default because, for example, in tiktok,
@@ -126,7 +126,7 @@ function findNature(urlo) {
   }
   id = computeId(JSON.stringify(nature));
   nature.id = id;
-  debug("Nature is ready: %O", nature);
+  debug("Nature found: %s %j", nature.platform, nature.details);
   return nature;
 }
 

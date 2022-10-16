@@ -15,10 +15,12 @@ async function querySubmission(db, filter) {
     r = await client
       .db()
       .collection("submission")
-      .find(filter);
-    debug("Submissions meeting %O = %d", filter, r.length);
+      .find(filter)
+      .toArray();
+    debug("Submissions by %O = %d", filter, r.length);
   } catch(error) {
     debug("Error in querySubmission: %s", error.message);
+    throw new Error(`querySubmission: ${error.message}`);
   }
   await client.close();
   return r;
