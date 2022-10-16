@@ -5,13 +5,37 @@
  * would be supported.
  */
 
+const { connect } = require('./mongo');
+const debug = require('debug')('utils:database');
 
 async function querySubmission(db, filter) {
-  console.log("querySubmission", db, filter);
+  const client = await connect(db);
+  let r = [];
+  try {
+    r = await client
+      .db()
+      .collection("submission")
+      .find(filter);
+    debug("Submissions meeting %O = %d", filter, r.length);
+  } catch(error) {
+    debug("Error in querySubmission: %s", error.message);
+  }
+  await client.close();
+  return r;
 }
 
 async function createSubmission(db, payload) {
-  console.log("createSubmission", db, payload);
+  const client = await connect(db);
+  try {
+    await client
+      .db()
+      .collection("submission")
+      .insertOne(payload);
+    debug("submission succesfully added to DB");
+  } catch(error) {
+    debug("Error in createSubmission: %s", error.message);
+  }
+  await client.close();
 }
 
 module.exports = {

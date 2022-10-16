@@ -59,8 +59,11 @@ function tryPotentialMatches(urlo, potentialMatches) {
         memo.nature = matched.nature;
         debug("assigned detail via function as %O", memo);
       } else {
-        debug("function from %s failed with %s",
-          matched.function, urlo.href);
+        // debug("function from %s failed with %s", matched.function, urlo.href);
+	// don't enable this as default because, for example, in tiktok,
+	// every video url is also checked as a channel, as the potental
+	// match in the 'path' is the same. A more complex regexp in yaml files 
+	// with a path, is something that might give a meaning to the debug above
       }
     }
 
