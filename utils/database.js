@@ -10,20 +10,20 @@ const debug = require('debug')('utils:database');
 
 async function querySubmission(db, filter) {
   const client = await connect(db);
-  let r = [];
   try {
-    r = await client
+    let r = await client
       .db()
       .collection("submission")
       .find(filter)
       .toArray();
     debug("Submissions by %O = %d", filter, r.length);
+    await client.close();
+    return r;
   } catch(error) {
     debug("Error in querySubmission: %s", error.message);
+    await client.close();
     throw new Error(`querySubmission: ${error.message}`);
   }
-  await client.close();
-  return r;
 }
 
 async function createSubmission(db, payload) {
@@ -34,10 +34,18 @@ async function createSubmission(db, payload) {
       .collection("submission")
       .insertOne(payload);
     debug("submission succesfully added to DB");
+    await client.close();
+    /* successful creation is a 'true' */
+    return true;
   } catch(error) {
+    await client.close();
+    if(error.code === 11000) {
+      /* duplication of an unique key */
+      return false;
+    }
     debug("Error in createSubmission: %s", error.message);
+    throw new Error(`createSubmission: ${error.message}`);
   }
-  await client.close();
 }
 
 module.exports = {

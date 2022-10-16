@@ -2,6 +2,7 @@
 import logger from 'debug';
 const debug = logger('bin:systemCheckup');
 import { spinner } from 'zx/experimental';
+import _ from 'lodash';
 
 console.log(`This tool simply connects to all the implemented API and check if they works`);
 console.log(`Plus initially initialized the dataset with some dummy working values`);
@@ -16,9 +17,18 @@ const ports = {
 const payloadsDir = path.join('tests', '_payloads');
 
 async function report(retval, msg) {
-  if(retval.size) {
-    const r = await retval.json();
-    debug("(%d) %s: %O", retval.status, msg, r);
+
+  if(retval.status > 300) {
+    /* in this case we are in a 4XX 5XX error */
+    const errorMessage = await retval.text();
+    debug("Error (%d): %s: %s", retval.status, msg, errorMessage);
+    return;
+  }
+
+  const r = await retval.json();
+  if(JSON.stringify(r).length > 2) {
+    debug("(%d) %s: %d bytes (keys: %d)", retval.status, msg,
+      JSON.stringify(r).length, _.keys(r).length);
   } else
     debug("Empty answer, HTTP status code: %d", retval.status);
 }
@@ -43,11 +53,6 @@ async function testSubmission() {
     "POST to submission (normal)"
   );
 
-  await report(
-    await fetch(`${server}/submission/${JSON.stringify({platform:'youtube'})}`),
-    "GET submission (youtube normal URL only)"
-  );
-
   /* update the previously used payload with other two URLs */
   submissionPayload.url = "https://www.youtube.com/shorts/IX3nMJaUS-Q";
   debug("Sending submission payload %O", submissionPayload);
@@ -65,6 +70,13 @@ async function testSubmission() {
     "POST to submission (url shortened)"
   );
 
+  /* read the submission just made */
+  debug("Reading existing submission from youtube");
+  await report(
+    await fetch(`${server}/submission/${JSON.stringify({platform:'youtube'})}`),
+    "GET submission (youtube platform)"
+  );
+
   /* tiktok */
   submissionPayload.url = "https://www.tiktok.com/@rtl.sport/video/7154111468428856582";
   debug("Sending submission payload %O", submissionPayload);
@@ -72,6 +84,12 @@ async function testSubmission() {
   await report(
     await fetch(`${server}/submission`, payload),
     "POST to submission (tiktok video url)"
+  );
+
+  debug("Reading existing submission from tiktok");
+  await report(
+    await fetch(`${server}/submission/${JSON.stringify({platform:'tiktok'})}`),
+    "GET submission (tiktok platform)"
   );
 }
 

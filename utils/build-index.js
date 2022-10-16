@@ -36,6 +36,7 @@ async function ensureIndex(db, filter) {
 
   const client = await connect(db);
 
+  const createdIndexes = {};
   try {
     for(const collection of indexes) {
       debug("Checkingx & configuring index %s (%d)",
@@ -47,13 +48,14 @@ async function ensureIndex(db, filter) {
           .createIndex(index.key, index.options || {});
         debug("Index %s OK", _.keys(index.key));
       }
+      createdIndexes[collection.collection] = collection.index.length;
     }
   } catch(error) {
     debug("Error in createIndex: %s", error.message);
     return false;
   }
   await client.close();
-  return true;
+  return createdIndexes;
 }
 
 module.exports = {
