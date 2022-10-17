@@ -1,9 +1,8 @@
 /*
- * in these files you'll find, BELOW, the functions exported 
+ * in this file you'll find, BELOW, the functions exported
  * as 'routes' of express, they take as argument the expressApp.
  * ON TOP, the actual functions that operated with DB/web.
  */
-
 const debug = require('debug')('submission:http');
 const webutils = require('../../utils/webutils');
 const database = require('../../utils/database');
@@ -68,6 +67,7 @@ async function createSubmission(db, req, res) {
   };
 }
 
+/* BELOW, the routes as loaded by utils/express.js */
 async function getSubmission(db, expressApp) {
   expressApp.get('/submission/:filter', async (req, res) => {
     try {

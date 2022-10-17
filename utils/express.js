@@ -14,7 +14,7 @@ const debug = require('debug')('utils:express');
 
 async function bindHTTPServer(routeConfig, serverConfig, dbConfig) {
 
-    const expressApp = express()
+    const expressApp = express();
 
     expressApp.listen(serverConfig.port, () => {
         debug("Binded sucessfully port %d", serverConfig.port);
@@ -26,6 +26,11 @@ async function bindHTTPServer(routeConfig, serverConfig, dbConfig) {
     for (const route of routeConfig.routes) {
        await route(dbConfig, expressApp);
     }
+
+    /* the default route for all the services */
+    expressApp.get('/health', (_, res) => {
+        res.send('OK');
+    });
 
     /* this function is called by bin/*.mjs
      * and so far we don't need to return anything */

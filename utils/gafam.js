@@ -1,8 +1,7 @@
-/* this file is an utility file to wrap what is present in ../platforms
+/* This file is an utility file to wrap what is present in ../platforms
  * as it talks about the supported platforms.
- *
- * it stores the information parsed from ../platforms/** and export utilities
- * and static data.
+ * It process and store the information parsed from ../platforms/** and export
+ * functions (and the loaded data .platforms and .natures)
  */
 const _ = require('lodash');
 const path = require('path');
@@ -20,6 +19,9 @@ function platformSupported(inputstr) {
 }
 
 function natureSupported(inputstr) {
+  /* this is not really specify into the API, so I
+   * guess I started it only for a weird need of 
+   * symmetry with `platformSupported` :shrug-emoji: */
   guaranteeLoading();
   if(!inputstr)
     return false;
@@ -135,8 +137,9 @@ function guaranteeLoading(platformDir) {
    * loaded into the shared variables */
 
   if(!platforms.length && !natures.length) {
-    const path = require('path');
     const fs = require('fs');
+    /* P.S. yaml is not explicit in package.json but part of zx */
+    const yaml = require('yaml');
 
     if(!platformDir) {
       platformDir = path.join(process.cwd(), 'platforms');
@@ -153,9 +156,6 @@ function guaranteeLoading(platformDir) {
       throw new Error(`domains.yaml file not found in ${domainfile}`);
     }
     debug('Loading "domains.yaml" files from %s', platformDir);
-
-    /* P.S. yaml is explicit in package.json but part of zx */
-    const yaml = require('yaml');
 
     const lsplatdir = fs.readdirSync(platformDir);
     /* lsplatfir contains directory with platforms, and domain.yaml */
@@ -211,8 +211,10 @@ function guaranteeLoading(platformDir) {
   }
 
   if(!platforms.length || !natures.length) {
-    throw new Error(`Unble to load data form ${platformDir}`);
+    throw new Error(`Unable to load data form ${platformDir}`);
   }
+
+  return { natures, platforms }
 }
 
 module.exports = {

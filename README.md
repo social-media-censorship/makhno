@@ -34,6 +34,17 @@ The file `openapi.yaml` has been generated with https://editor.swagger.io and de
 ### Implemented components and their role
 
 
+# `./platforms` folder 
+
+Format and specification for the platform directory YAML files
+
+## The `Natures` files
+
+## The `.js` files
+
+## The `curl/` subdirectories
+
+
 ### Author
 
 Claudio Agosti _claudio at tracking dot exposed_.

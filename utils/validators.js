@@ -27,7 +27,7 @@ function querySubmission(input) {
       /* else, simply the plausible filter mechanism wasn't present in this request */
       return memo;
     }, {});
-    debug("input %O validated as %O", p, retval);
+    debug("Input %O validated as %O", p, retval);
     return retval;
   } catch(error) {
     throw new Error(`querySubmission validation fail: ${error.message}`);
