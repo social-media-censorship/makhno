@@ -1,21 +1,22 @@
 const _ = require('lodash');
-debug = require('debug')('utils:parsinghq');
+const debug = require('debug')('utils:parsinghq');
+const ddeta = require('debug')('utils:parsinghq:details');
 
 function rawmatch(input, lookfor) {
   const re = new RegExp(lookfor);
-  // debug("lookfor [%s] is [%s]", lookfor, re.test(input));
+  ddeta("rawmatch [%s] is [%s]", lookfor, re.test(input));
   return re.test(input);
 }
 
 function shouldBe(accumulated, subject) {
   const previous = _.last(accumulated);
-  // debug("shouldBe %O subject %s", subject); 
+  ddeta("shouldBe %O subject %s", subject); 
   return (previous == subject);
 };
 
 function querySelector(d, subject) {
   const node = d.querySelector(subject);
-  // debug("querySelector found %s", node);
+  ddeta("querySelector found %s", node);
   return node;
 };
 
@@ -23,7 +24,7 @@ function textContentBe(accumulated, subject) {
   const node = _.last(accumulated);
   if(!node)
     return false;
-  // debug("textContent [%s] subject %s", node.textContent, subject); 
+  ddeta("textContent [%s] subject %s", node.textContent, subject); 
   return (node.textContent == subject);
 };
 
@@ -52,15 +53,16 @@ function apply(plogic, htmlo) {
         memo.output.push(shouldBe(memo.output, subject))
         break;
       case 'querySelector':
-	memo.output.push(querySelector(memo.input.document, subject));
+        memo.output.push(querySelector(memo.input.document, subject));
         break;
       case 'textContentBe':
-	memo.output.push(textContentBe(memo.output, subject));
+        memo.output.push(textContentBe(memo.output, subject));
         break;
       default:
         throw new Error(`Invalid command: ${command} (subject is ${subject})`);
     }
-    //  debug("After executing %s: %O", command, memo.output);
+    debug("%d) After [%s](%s) → %O",
+      commandNumber, command, subject, memo.output);
     return memo;
    }, { output: [], input: htmlo });
 

@@ -8,7 +8,7 @@
   "scripts": {
     "start": "DEBUG=* bin/systemCheckup.mjs",
     "submission": "DEBUG=*,-express:*,-body-parser:* bin/submission.mjs",
-    "gafam": "DEBUG=*,-express:*,-body-parser:* bin/gafam.mjs",
+    "gafam": "DEBUG=*,-express:*,-body-parser:*,-utils:parsinghq* bin/gafam.mjs",
     "test": "jest"
   },
   "repository": {

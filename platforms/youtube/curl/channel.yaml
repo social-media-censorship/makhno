@@ -6,7 +6,7 @@ logics:
     - shouldBe: 1
   - notfound:
     - querySelector: title
-    - textContentBe: "404 Not Found"
+    - textContentBe: '404 Not Found'
   - explicit:
     - rawmatch: '"availableCountryCodes":'
     - shouldBe: 0

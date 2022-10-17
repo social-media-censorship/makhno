@@ -6,7 +6,17 @@ function verifyConsistency(triplet) {
    * and available. but are we sure all the parser return a
    * consistent assesment, and not, for example, all the test returns
    * true? this function look at it and print a debug line if unexpecred */
-  debug("validating: %O", triplet);
+
+  if(triplet.accessible && !triplet.notfound && !triplet.explicit) {
+    return "accessible";
+  } else if(!triplet.accessible && triplet.notfound && triplet.explicit) {
+    return "notfound";
+  } else if(!triplet.accessible && !triplet.notfound && triplet.explicit) {
+    return "explicit";
+  } else {
+    debug("Ambiguos result from: %O", triplet);
+    return "ambiguos";
+  }
 }
 
 module.exports = {

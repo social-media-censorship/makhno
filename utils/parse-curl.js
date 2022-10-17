@@ -128,15 +128,16 @@ function parse(nature, htmlo) {
     const notfound = apply(parsedetails.logics.notfound, htmlo);
     const explicit = apply(parsedetails.logics.explicit, htmlo);
 
-    const retval = {
+    const estimations = {
       accessible,
       notfound,
       explicit
     };
 
     // the verify function only produce debug so far
-    verifyConsistency(retval);
-    return retval;
+    const determination = verifyConsistency(estimations);
+    debug("Final determination for %j is %s", estimations, determination);
+    return determination;
 
   } catch(error) {
     debug("Error in parsing w/YAML specs (%s): %s",

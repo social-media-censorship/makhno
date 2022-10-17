@@ -35,12 +35,12 @@ function processHTML(req, res) {
     throw new Error("This version only supports curl cold HTML");
 
   const validHTML = validateCURLhtml(html);
-  const meaning = parse(nature, validHTML);
+  const determination = parse(nature, validHTML);
 
   debug("parseHTML of %s from %j is %O",
-    targetURL, countryCode, meaning);
+    targetURL, countryCode, determination);
 
-  return meaning;
+  return { determination };
 }
 
 
