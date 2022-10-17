@@ -3,21 +3,54 @@
  */
 const _ = require('lodash');
 const debug = require('debug')('utils:parse-curl');
-const { computeId } = require('./various');
+// const { computeId } = require('./various');
 const { guaranteeLoading } = require('./gafam');
+const { apply } = require('./parsinghq');
+const { verifyConsistency } = require('./results');
 
 const JSDOM = require("jsdom").JSDOM;
 
 function validateCURLhtml(inputstr) {
   /* this validate the HTML and return 
-   * JSDOM window.document object */
+   * JSDOM window.document object + the RAW version */
   try {
     const { document } = (new JSDOM(inputstr)).window;
     debug("Loaded correctly HTML of %d bytes", inputstr.length);
-    return document;
+    return {
+      document,
+      raw: inputstr
+    };
   } catch(error) {
     debug("Error in loading HTML with JSDOM: %s", error.message);
   }
+}
+
+function simplify(yaminpu) {
+  /* the yaml input, once is parse, produce a list of objects
+   * while we need an object. This function apply this 
+   * conversion so the YAMLcache[platform][nature] = { object }
+   * would be more accessible in further iterations */
+  return _.reduce(yaminpu, function(memo, element) {
+    return {
+      ...memo,
+      ...element,
+    }
+  }, {});
+  /* This is the input: "logics": [
+        {
+          "accessible": [
+            {
+              "rawmatch": "\"availableCountryCodes\":"
+            },
+            {
+              "shouldBe": 1
+            }
+          ]
+        },
+        {
+          "notfound": [ 
+    and should become 
+    logics: { accessible: [], notfound: [], ... } */
 }
 
 let YAMLcache = null;
@@ -56,7 +89,15 @@ function loadParseYAML(platform, nature) {
         const parsinfstr = fs.readFileSync(fp, 'utf-8');
         debug("Loaded %s: %d", fp, parsinfstr.length);
         const parseinfos = yaml.parse(parsinfstr);
-        _.set(YAMLcache, [ platf, natr ], parseinfos);
+        /* because of YAML flexibilities better to simplify the 
+         * list of object (logics) into a more accessible object */
+        const logics = simplify(parseinfos.logics ?? []);
+        delete parseinfos.logics;
+        /* and this set the parser information */
+        _.set(YAMLcache, [ platf, natr ], {
+          ...parseinfos,
+          logics,
+        });
       }
       else {
         debug("File %s missing", fp);
@@ -72,7 +113,11 @@ function loadParseYAML(platform, nature) {
   return parsedet;
 }
 
-function actualParsing(parsedetails, document) {
+function parse(nature, htmlo) {
+
+  const parsedetails = loadParseYAML(
+    nature.platform, nature.nature, 'curl'
+  );
 
   if(!(parsedetails?.logics?.length >= 1)) {
     debug("Missing parsing attempts logics in %s|%s",
@@ -86,25 +131,25 @@ function actualParsing(parsedetails, document) {
     parsedetails.platform,
     parsedetails.nature, parsedetails.logics.length);
 
-  const results = _.map(parsedetails.logics, function(lod) {
-    const nodes = document.querySelectorAll(lod);
-    return nodes.length ?? 0;
-  });
-
-  debug("Parsing results: %O", results);
-}
-
-function parse(nature, document) {
-
-  const parsedetails = loadParseYAML(
-    nature.platform, nature.nature, 'curl'
-  );
-
   try {
-    return actualParsing(parsedetails, document);
+    const accessible = apply(parsedetails.logics.accessible, htmlo);
+    const notfound = apply(parsedetails.logics.notfound, htmlo);
+    const explicit = apply(parsedetails.logics.explicit, htmlo);
+
+    const retval = {
+      accessible,
+      notfound,
+      explicit
+    };
+
+    // the verify function only produce debug so far
+    verifyConsistency(retval);
+    return retval;
+
   } catch(error) {
-    debug("Error in parsing %s HTML: %s",
+    debug("Error in parsing w/YAML specs (%s): %s",
       nature.href, error.message);
+    throw new Error(`Error in makhno parsing logic: ${error.message}`);
   }
 }
 

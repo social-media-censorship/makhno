@@ -94,24 +94,27 @@ async function testSubmission(server) {
 async function testGAFAM(server) {
   const files = [
     'invalidYTChannel.html',
-    'validYTChannel.html'
+    'validYTChannel.html',
+    'blockedYTChannel.html',
   ];
-  const invalidytc = path.join(payloadsDir, files[0]);
-  debug("Opening file %s");
-  const html = fs.readFileSync(invalidytc, 'utf-8');
-  payload.body = JSON.stringify({
-    html,
-    source: 'curl',
-    targetURL: "https://www.youtube.com/channel/UCs4O0o873h_XtA-0RYrLoxg",
-    countryCode: "IO",
-  });
+  debug("Submitting %d files", files.length);
 
-  /* ------------------------------- */
-  debug("Sending HTML of %s to GAFAM parse", files[0]);
-  await report(
-    await fetch(`${server}/gafam/parse`, payload),
-    "POST to GAFAM/parse"
-  );
+  for(const file of files) {
+    const filepath = path.join(payloadsDir, file);
+    const html = fs.readFileSync(filepath, 'utf-8');
+    payload.body = JSON.stringify({
+      html,
+      source: 'curl',
+      targetURL: `www.youtube.com/channel/IGNORED-${file.replace(/\.html/, '')}`,
+      countryCode: "IO",
+    });
+
+    debug("Sending HTML of [%s] to the GAFAM parse API", file);
+    await report(
+      await fetch(`${server}/gafam/parse`, payload),
+      `POST ${file} to API /gafam/parse`
+    );
+  }
 
 }
 

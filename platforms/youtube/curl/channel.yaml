@@ -1,3 +1,13 @@
 platform: youtube
 nature: channel
-# qualcosa ancora da capire e da fare
+logics:
+  - accessible:
+    - rawmatch: '"availableCountryCodes":'
+    - shouldBe: 1
+  - notfound:
+    - querySelector: title
+    - textContentBe: "404 Not Found"
+  - explicit:
+    - rawmatch: '"availableCountryCodes":'
+    - shouldBe: 0
+  
