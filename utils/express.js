@@ -20,7 +20,7 @@ async function bindHTTPServer(routeConfig, serverConfig, dbConfig) {
         debug("Binded sucessfully port %d", serverConfig.port);
     });
 
-    expressApp.use(bodyParser.json());
+    expressApp.use(bodyParser.json({ limit: '2mb' }));
     expressApp.use(bodyParser.urlencoded({ extended: true }));
 
     for (const route of routeConfig.routes) {

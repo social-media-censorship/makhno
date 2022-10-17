@@ -119,17 +119,9 @@ function parse(nature, htmlo) {
     nature.platform, nature.nature, 'curl'
   );
 
-  if(!(parsedetails?.logics?.length >= 1)) {
-    debug("Missing parsing attempts logics in %s|%s",
-      parsedetails.platform,
-      parsedetails.nature
-    );
-    throw new Error("Not actually implemented any parsing logic");
-  }
-
-  debug("Parsing %s|%s with %d attempts",
+  debug("Parsing %s|%s with %j supported matches",
     parsedetails.platform,
-    parsedetails.nature, parsedetails.logics.length);
+    parsedetails.nature, _.keys(parsedetails.logics));
 
   try {
     const accessible = apply(parsedetails.logics.accessible, htmlo);
