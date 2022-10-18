@@ -1,6 +1,6 @@
 #!node_modules/.bin/zx
 import logger from 'debug';
-const debug = logger('bin:systemCheckup');
+const debug = logger('bin:orchestrator');
 import _ from 'lodash';
 
 /* the code is actually executed at the end */
@@ -143,9 +143,34 @@ async function wrapTestGAFAM() {
   }
 }
 
+async function pickLastProcessedSubmission() {
+  // this function looks into a local database or file
+  // when the last submission was fetch, so it can 
+  // pick only the most recent submissions
+  let lastSubmission = {};
+  const cacheFile = '.lastSubmission.json';
+  try {
+    const cache = fs.readJSON(cacheFile);
+    lastSubmission = cache.date;
+    debug(`read lastSubmission with Id ${cache.id} from ${cache.date}`);
+  } catch(error) {
+    debug("Unable to find ")
+  }
+}
 
-// Here is where the execution starts:
-console.log(`This tool simply connects to all the implemented API and check if they works`);
-console.log(`Plus initially initialized the dataset with some dummy working values`);
-await wrapTestSubmission();
-await wrapTestGAFAM()
+async function fetchAuthenticationMaterial() {
+  // at the moment return a static string 
+  return "³ASTRING!³"
+}
+
+
+// Here is where the execution starts, the functions 
+// try to have a self-explainatory name :)
+console.log(`This tool pulls from submission and coordinates the scheduled tests`);
+const adminAuth = await fetchAuthenticationMaterial();
+const lastSubmission = await pickLastProcessedSubmission();
+const submissions = await pickRecentSubmission(lastSubmission);
+const scheduled = await elaborateSchedule(submissions);
+const results = await sendScheduled(scheduled, adminAuth);
+console.log(`Schedule complete!`);
+console.log(results);

@@ -5,7 +5,7 @@
  * they raise an exeption */
 
 const _ = require('lodash');
-const gafam = require('./gafam');
+const gafam = require('../../utils/gafam');
 const debug = require('debug')('utils:validators');
 
 function querySubmission(input) {

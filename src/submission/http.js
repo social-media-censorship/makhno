@@ -3,11 +3,14 @@
  * as 'routes' of express, they take as argument the expressApp.
  * ON TOP, the actual functions that operated with DB/web.
  */
-const debug = require('debug')('submission:http');
-const webutils = require('../../utils/webutils');
-const database = require('../../utils/database');
-const validators = require('../../utils/validators');
+
 const _ = require('lodash');
+const debug = require('debug')('submission:http');
+
+const database = require('./database');
+const validators = require('./validators');
+
+const webutils = require('../../utils/webutils');
 
 async function querySubmission(db, req, res) {
   /* This is the endpoint that manages a collection of 

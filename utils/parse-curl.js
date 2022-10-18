@@ -148,6 +148,7 @@ function parse(nature, htmlo) {
 
 module.exports = {
   loadParseYAML,
+  simplify,
   validateCURLhtml,
   parse,
 }

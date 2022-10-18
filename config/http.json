@@ -6,7 +6,9 @@
     "port": 2002
   },
   "scheduled": {
+    "port": 2003
   },
   "results": {
+    "port": 2004
   }
 }

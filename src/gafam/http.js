@@ -7,7 +7,7 @@ const _ = require('lodash');
 const debug = require('debug')('gafam:http');
 const webutils = require('../../utils/webutils');
 const gafam = require('../../utils/gafam');
-const { validateNature } = require('../../utils/validators');
+const { validateNature } = require('../submission/validators');
 const { validateCURLhtml, parse } = require('../../utils/parse-curl');
 
 function querySupportedNatures(req, res) {

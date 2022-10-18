@@ -16,6 +16,11 @@
      ]
   },
   "results": {
-     "mongodb":"mongodb://localhost:27017/makhno"
+     "mongodb":"mongodb://localhost:27017/makhno",
+     "index": [
+       { "key": { "id": 1 }, "options": { "unique": true } },
+       { "key": { "submissionId": 1 } },
+       { "key": { "creationTime": -1 } }
+     ]
   }
 }

@@ -5,35 +5,35 @@
  * would be supported.
  */
 
-const { connect } = require('./mongo');
-const debug = require('debug')('utils:database');
+const { connect } = require('../../utils/mongo');
+const debug = require('debug')('scheduled:database');
 
-async function querySubmission(db, filter) {
+async function queryScheduled(db, filter) {
   const client = await connect(db);
   try {
     let r = await client
       .db()
-      .collection("submission")
+      .collection("scheduled")
       .find(filter)
       .toArray();
-    debug("Submissions by %O = %d", filter, r.length);
+    debug("Scheduled query by %O = %d", filter, r.length);
     await client.close();
     return r;
   } catch(error) {
-    debug("Error in querySubmission: %s", error.message);
+    debug("Error in queryScheduled: %s", error.message);
     await client.close();
-    throw new Error(`querySubmission: ${error.message}`);
+    throw new Error(`queryScheduled: ${error.message}`);
   }
 }
 
-async function createSubmission(db, payload) {
+async function createScheduled(db, payload) {
   const client = await connect(db);
   try {
     await client
       .db()
-      .collection("submission")
+      .collection("scheduled")
       .insertOne(payload);
-    debug("submission succesfully added to DB");
+    debug("Scheduled operation succesfully added to DB");
     await client.close();
     /* successful creation is a 'true' */
     return true;
@@ -43,12 +43,12 @@ async function createSubmission(db, payload) {
       /* duplication of an unique key */
       return false;
     }
-    debug("Error in createSubmission: %s", error.message);
-    throw new Error(`createSubmission: ${error.message}`);
+    debug("Error in createScheduled: %s", error.message);
+    throw new Error(`createScheduled: ${error.message}`);
   }
 }
 
 module.exports = {
-  querySubmission,
-  createSubmission,
+  queryScheduled,
+  createScheduled,
 }
