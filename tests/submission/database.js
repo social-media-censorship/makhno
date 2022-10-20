@@ -2,7 +2,7 @@ const _ = require('lodash');
 const { describe, expect, test } = require('@jest/globals');
 
 const { ensureIndex } = require('../../utils/build-index');
-const database = require('../../utils/database');
+const database = require('../../src/submission/database');
 const { connect } = require('../../utils/mongo');
 
 describe('Mongo Database', () => {

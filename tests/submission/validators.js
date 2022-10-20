@@ -1,6 +1,6 @@
 const _ = require('lodash');
 const { describe, expect, test } = require('@jest/globals');
-const validators = require('../../utils/validators');
+const validators = require('../../src/submission/validators');
 
 describe('querySubmission input validator', () => {
 

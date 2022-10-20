@@ -28,7 +28,8 @@ async function bindHTTPServer(routeConfig, serverConfig, dbConfig) {
     }
 
     /* the default route for all the services */
-    expressApp.get('/health', (_, res) => {
+    expressApp.get('/health', (req, res) => {
+	debug("Health check from [%s]: OK", req.ip);
         res.send('OK');
     });
 

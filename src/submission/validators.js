@@ -50,7 +50,8 @@ function createSubmission(countryCodes, nature) {
 
 function validateNature(input) {
   /* this function uses gafam library to validate the URL and 
-   * attribute a nature out of it */
+   * attribute a nature out of it. It returns two properties
+   * because the input URL might have been changed in this process */
   if(!_.startsWith(input, 'http'))
     input = `https://${input}`;
 
@@ -61,10 +62,10 @@ function validateNature(input) {
     if(!nature)
       throw new Error(`Makhno do not currently support this url [${input}]`);
 
-    debug('Nature of %s accepted as %s (%s)',
-      input, nature.platform, nature.nature);
+    debug('Nature of [%s] foundas %s (%s)',
+      nature.href, nature.platform, nature.nature);
 
-    return nature;
+    return nature
   } catch(error) {
     throw new Error(`validateNature fail: ${error.message}`);
   }

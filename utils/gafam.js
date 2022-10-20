@@ -62,10 +62,10 @@ function tryPotentialMatches(urlo, potentialMatches) {
         // debug("Assigned detail via function as %O", memo);
       } else {
         // debug("function from %s failed with %s", matched.function, urlo.href);
-	// don't enable this as default because, for example, in tiktok,
-	// every video url is also checked as a channel, as the potental
-	// match in the 'path' is the same. A more complex regexp in yaml files 
-	// with a path, is something that might give a meaning to the debug above
+        // don't enable this as default because, for example, in tiktok,
+        // every video url is also checked as a channel, as the potental
+        // match in the 'path' is the same. A more complex regexp in yaml files 
+        // with a path, is something that might give a meaning to the debug above
       }
     }
 
@@ -112,9 +112,9 @@ function findNature(urlo) {
 
   /* it is a potential match because it might be more than
    * one match, and we need to find the correct 'details' */
-  const details = tryPotentialMatches(urlo, potentialMatches);
+  const meaning = tryPotentialMatches(urlo, potentialMatches);
 
-  if(!_.keys(details).length) {
+  if(!_.keys(meaning).length) {
     debug("%s: no details extracted from %s",
       platform, urlo.href);
     return null;
@@ -123,12 +123,15 @@ function findNature(urlo) {
   /* we've all the information to compile a valid Nature */
   const nature = {
     platform,
-    ...details,
+    ...meaning, // contains 'nature' and 'details'
+    href: urlo.href,
     supported: true,
   }
-  id = computeId(JSON.stringify(nature));
-  nature.id = id;
-  debug("Nature found: %s %j", nature.platform, nature.details);
+  /* 'href' is not part of the ID because the actual meaning is from 'details' */
+  nature.id = computeId(`${JSON.stringify(meaning)} ${platform}`);
+
+  debug("Nature for [%s](%s) is: %s %j",
+    nature.href, nature.id, nature.platform, nature.details);
   return nature;
 }
 
