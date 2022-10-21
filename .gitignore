@@ -13,3 +13,6 @@ generated/
 
 # jest coverage
 coverage/
+
+# local cache file
+.lastSubmission.json

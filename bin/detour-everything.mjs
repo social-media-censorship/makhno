@@ -1,6 +1,6 @@
 #!node_modules/.bin/zx
 import logger from 'debug';
-const debug = logger('bin:systemCheckup');
+const debug = logger('bin:detour-everything'); // well, nearly everything
 import _ from 'lodash';
 
 /* the code is actually executed at the end */

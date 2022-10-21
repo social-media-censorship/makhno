@@ -6,7 +6,7 @@
     "lib": "lib"
   },
   "scripts": {
-    "start": "DEBUG=* bin/systemCheckup.mjs",
+    "detour": "DEBUG=* bin/detour-everything.mjs",
     "submission": "DEBUG=*,-express:*,-body-parser:* bin/submission.mjs",
     "scheduled": "DEBUG=*,-express:*,-body-parser:* bin/scheduled.mjs",
     "gafam": "DEBUG=*,-express:*,-body-parser:*,-utils:parsinghq* bin/gafam.mjs",

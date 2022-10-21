@@ -28,7 +28,8 @@ The file `openapi.yaml` has been generated with https://editor.swagger.io and de
 ### How test is handled? 
 
 * [jest](https://jestjs.io/)
-* `npm start` aka `bin/systemCheckup.mjs`
+* you should start the services `npm run submission` `npm run schedule` `npm run gafam` `npm run results`
+* then `npm run detour` would test locally if they are working and would execute some activity simulating the server
 * `jest --collect-coverage`
 
 ### Implemented components and their role

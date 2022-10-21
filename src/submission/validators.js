@@ -6,14 +6,15 @@
 
 const _ = require('lodash');
 const gafam = require('../../utils/gafam');
-const debug = require('debug')('utils:validators');
+const debug = require('debug')('submission:validators');
 
 function querySubmission(input) {
   /* it is a string of encoded JSON */
+  const PARAMETERS = ['platform', 'nature', 'countryCodes', 'after'];
   try {
     const p = JSON.parse(input);
     /* the only acceptable patterns at the moment is by platform, nature and countryCode */
-    const retval = _.reduce(['platform', 'nature', 'countryCodes'], function(memo, valid) {
+    const retval = _.reduce(PARAMETERS, function(memo, valid) {
       if(valid === 'countryCodes' && p[valid]?.length) {
         const ccl = _.toUpper(p[valid]).split(',');
         _.set(memo, valid, ccl);
@@ -24,9 +25,19 @@ function querySubmission(input) {
       else if(valid === 'platform' && gafam.platformSupported(p[valid])) {
         _.set(memo, valid, p[valid]);
       }
+      else if(valid === 'after') {
+        /* in this validation process we rebuild the input and conver what is 
+         * human-readalbe (like 'after') to the actual fields in mongodb */
+        const check = new Date(p[valid]);
+        memo['creationTime'] = { "$gte" : check };
+      }
       /* else, simply the plausible filter mechanism wasn't present in this request */
       return memo;
     }, {});
+    if(JSON.stringify(retval).length < 3) {
+      debug("The input has not any meaningful filtering meachnism so it should be invalid");
+      throw new Error(`Missing a valid filter ${PARAMETERS}`);
+    }
     debug("Input %O validated as %O", p, retval);
     return retval;
   } catch(error) {

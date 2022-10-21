@@ -5,7 +5,6 @@
  * they raise an exeption */
 
 const _ = require('lodash');
-const gafam = require('../../utils/gafam');
 const debug = require('debug')('scheduled:validators');
 
 function queryScheduled(input) {
@@ -18,21 +17,13 @@ function queryScheduled(input) {
   }
 }
 
-function createScheduled(countryCodes, nature) {
-  /* this function merge the nature (returned from processURL)
-   * and the submission input, to actually create a submission */
-  nature.creationTime = new Date();
+function validateScheduled(scheduled) {
+  console.log(JSON.stringify(scheduled, null, 2));
+  return scheduled.scheduled ?? [];
 
-  if(!countryCodes || countryCodes.length === 0) {
-    debug("A submission without country codes to %s", nature.href);
-    nature.countryCodes = [];
-  } else {
-    nature.countryCodes = countryCodes;
-  }
-  return nature;
 }
 
 module.exports = {
   queryScheduled,
-  createScheduled,
+  validateScheduled,
 }

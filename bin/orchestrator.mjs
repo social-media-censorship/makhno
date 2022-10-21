@@ -1,10 +1,11 @@
 #!node_modules/.bin/zx
+
+import { argv, fs, path } from 'zx';
 import logger from 'debug';
 import _ from 'lodash';
 
 const debug = logger('bin:orchestrator');
 const moment = require('moment');
-const fs = require('fs-extra');
 
 /* the code is actually executed at the end */
 
@@ -80,21 +81,22 @@ async function elaborateSchedule(submissions) {
     return memo;
   }, []);
   debug("Produced %d scheduled activity", scheduled.length);
+  return scheduled;
 }
 
 const cacheFile = '.lastSubmission.json';
 
-function updateLocalCache(submissions) {
-  let lastSubmissionNewDate = null;
+async function updateLocalCache(submissions) {
   if(!submissions || !submissions.length) {
     debug("Not updating local cache as no submission have been seen");
   } else {
-    const f = _.first(submissions);
-    const l = _.last(submissions);
-    debug("first %O last %O now %s", f, l, new Date());
-    console.log("it should be updateLocalCache");
+    const lastSubmissionNewDate = new Date(_.first(submissions).creationTime);
+    const id = _.first(submissions).id;
+    await fs.writeJSON(cacheFile, {
+      id,
+      date: lastSubmissionNewDate.toISOString(),
+    })
   }
-  return lastSubmissionNewDate;
 }
 
 async function pickLastProcessedSubmission() {
@@ -132,12 +134,55 @@ function loadSettings() {
 console.log(`This tool pulls from submission and coordinates the scheduled tests`);
 const server = loadSettings();
 const adminAuth = fetchAuthenticationMaterial();
-const lastSubmission = await pickLastProcessedSubmission();
-debug("Picking submission since %s from %s", lastSubmission, server);
-const submissions = await pickRecentSubmission(lastSubmission, server);
-const xxx = await updateLocalCache(submissions);
+
+let lastSubmissionDate = null;
+if(argv.date) {
+  try {
+    lastSubmissionDate = new Date(argv.date);
+  } catch(error) {
+    console.log(`--date lead to an error: ${error.message}`);
+    process.exit(1);
+  }
+} else {
+  lastSubmissionDate = await pickLastProcessedSubmission();
+}
+
+async function sendScheduled(objlist, auth, server) {
+  const endpoint = server.scheduled;
+  try {
+    const isUp = await fetch(`${endpoint}/health`);
+    const text = await isUp.text();
+    if(isUp.status !== 200 || text !== 'OK')
+      throw new Error("Unexpected server condition");
+
+    const payload = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        auth, 
+        scheduled: objlist
+      })
+    };
+    const response = await fetch(`${endpoint}/scheduled/`, payload);
+    if(response.status > 300) {
+      const t = await response.text();
+      console.log(`Error in pushing scheduled: ${response.status}: ${t}`);
+      console.log("Quitting");
+      process.exit(1);
+    }
+    const registered = await response.json();
+    return await registered.json();
+  } catch(error) {
+    console.log(`Submission server error at ${endpoint}: ${error.message}`);
+    process.exit(1);
+  }
+}
+
+debug("Picking submission since %s from %s", lastSubmissionDate, server);
+const submissions = await pickRecentSubmission(lastSubmissionDate, server);
+await updateLocalCache(submissions);
 const scheduled = await elaborateSchedule(submissions);
-// const results = await sendScheduled(scheduled, adminAuth, server);
+const results = await sendScheduled(scheduled, adminAuth, server);
 
 console.log(`Schedule completed, sent ${scheduled.length} directives, accepted ${results.inserted}`);
 console.log(results);
