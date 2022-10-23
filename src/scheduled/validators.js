@@ -18,8 +18,8 @@ function queryScheduled(input) {
 }
 
 function validateScheduled(scheduled) {
-  console.log(JSON.stringify(scheduled, null, 2));
-  return scheduled.scheduled ?? [];
+  debug("I should validate %d object", scheduled.length);
+  return scheduled ?? [];
 
 }
 

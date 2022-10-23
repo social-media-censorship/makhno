@@ -14,5 +14,6 @@ generated/
 # jest coverage
 coverage/
 
-# local cache file
-.lastSubmission.json
+# agent config files and cache
+agents/*.yaml
+agents/*.json

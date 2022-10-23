@@ -12,39 +12,28 @@ const database = require('./database');
 const validators = require('./validators');
 
 async function queryScheduled(db, req, res) {
-
-  debug("queryScheuled db %j", db)
   const filter = validators.queryScheduled(req.params.filter);
-  debug("queryScheduled filter %j", filter)
-  const retval = await database.queryScheduled(db, filter);
-  debug("querySchedule %j", retval);
-
-  return retval;
+  debug("Querying scheduled objects with filter %j", filter);
+  return await database.queryScheduled(db, filter);
 };
 
 async function createScheduled(db, req, res) {
 
-  /* 1) validate date
-     2) insert data */
-
-  const scheduled = validators.validateScheduled(req.body);
-  debug('Ready to add %s %s (%s)', scheduled.platform, scheduled.nature, scheduled.id);
-  const inserted = await database.createScheduled(db, scheduled);
-  if(inserted === false) {
-    debug("Not inserted (already present in DB)");
-    /* it returns null only when is duplicated */
-    res.status(202);
-  }
+  const scheduled = validators.validateScheduled(req.body.scheduled);
+  const results = await database.createScheduled(db, scheduled);
+  debug(results);
   /* the return value is the same format as getScheduled in both non-error-case */
   return {
-    scheduled
+   results  
   };
 }
 
 function authenticationIsValid(body) {
-  console.log("TODO implement authenticationIsValid :P");
-  console.log(_.keys(body));
-  return true;
+  /* This is not exactly conform to the CISSP security standards: */
+  return (body.auth === '³!A!STRING!³')
+  /* but, look: TODO fix this thing with a proper mechanism¹
+
+  ¹ after threat modeling and security assessment doc is produced */
 }
 
 /* BELOW, the routes as loaded by utils/express.js */
@@ -80,11 +69,14 @@ async function postScheduled(db, expressApp) {
    * timing (and implicitly also its the priority)
    * the `bin/orchestrator.mjs` is a tool that push information
    * here and basically orchestrate all the scheduled test */
-  expressApp.post('/scheduled/', async (req, res) => {
+  expressApp.post('/scheduled', async (req, res) => {
     try {
       if(!authenticationIsValid(req.body)) {
-        res.status(401) // Unauthorized
+        debug("Authentication failed? (%s)", req.body.auth);
+        res.status(401); // Unauthorized
+        res.send("Authentication fail");
       } else {
+        debug("Authentication is OK¹");
         const f = _.partial(createScheduled, db);
         const retval = await f(req, res);
         res.json(retval);

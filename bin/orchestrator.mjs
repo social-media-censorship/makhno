@@ -4,6 +4,7 @@ import { argv, fs, path } from 'zx';
 import logger from 'debug';
 import _ from 'lodash';
 
+const { computeId } = require('../utils/various');
 const debug = logger('bin:orchestrator');
 const moment = require('moment');
 
@@ -66,6 +67,7 @@ async function elaborateSchedule(submissions) {
   const scheduled = _.reduce(submissions, function(memo, submission) {
     _.each(submission.countryCodes, function(twlcc) {
       _.each(scheduleMap, function(timeOffset, i) {
+        const testId = computeId(`${submission.id}_${twlcc}_${i}`);
         debug("%s %d) %s", twlcc, i, submission.url);
         const schedo = {
           iteration: i,
@@ -73,7 +75,7 @@ async function elaborateSchedule(submissions) {
           vantagePoint: twlcc,
           targetURL: submission.url,
           submissionId: submission.id,
-          testId: "dah"
+          testId
         }
         memo.push(schedo);
       })
@@ -84,7 +86,7 @@ async function elaborateSchedule(submissions) {
   return scheduled;
 }
 
-const cacheFile = '.lastSubmission.json';
+const cacheFile = path.join('agents', 'orchestrator_cache.json');
 
 async function updateLocalCache(submissions) {
   if(!submissions || !submissions.length) {
@@ -163,7 +165,7 @@ async function sendScheduled(objlist, auth, server) {
         scheduled: objlist
       })
     };
-    const response = await fetch(`${endpoint}/scheduled/`, payload);
+    const response = await fetch(`${endpoint}/scheduled`, payload);
     if(response.status > 300) {
       const t = await response.text();
       console.log(`Error in pushing scheduled: ${response.status}: ${t}`);
@@ -171,7 +173,7 @@ async function sendScheduled(objlist, auth, server) {
       process.exit(1);
     }
     const registered = await response.json();
-    return await registered.json();
+    return registered;
   } catch(error) {
     console.log(`Submission server error at ${endpoint}: ${error.message}`);
     process.exit(1);
@@ -182,7 +184,7 @@ debug("Picking submission since %s from %s", lastSubmissionDate, server);
 const submissions = await pickRecentSubmission(lastSubmissionDate, server);
 await updateLocalCache(submissions);
 const scheduled = await elaborateSchedule(submissions);
-const results = await sendScheduled(scheduled, adminAuth, server);
+const { results } = await sendScheduled(scheduled, adminAuth, server);
 
 console.log(`Schedule completed, sent ${scheduled.length} directives, accepted ${results.inserted}`);
 console.log(results);

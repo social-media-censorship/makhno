@@ -30,7 +30,7 @@ function processHTML(req, res) {
 
   const { targetURL, source, countryCode, html } = req.body;
 
-  const { nature } = validateNature(targetURL);
+  const nature = validateNature(targetURL);
   if(source !== 'curl')
     throw new Error("This version only supports curl cold HTML");
 

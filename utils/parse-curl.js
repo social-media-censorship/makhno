@@ -36,20 +36,16 @@ function simplify(yaminpu) {
       ...element,
     }
   }, {});
-  /* This is the input: "logics": [
-        {
-          "accessible": [
-            {
-              "rawmatch": "\"availableCountryCodes\":"
-            },
-            {
-              "shouldBe": 1
-            }
-          ]
-        },
-        {
-          "notfound": [ 
-    and should become 
+  /* This is the input: "logics": [{
+    "accessible": [ {
+        "rawmatch": "\"availableCountryCodes\":"
+      }, {
+        "shouldBe": 1
+      } ]
+    }, {
+    "notfound": [ ... ]
+  }]
+    and should become compat as:
     logics: { accessible: [], notfound: [], ... } */
 }
 
@@ -108,7 +104,7 @@ function loadParseYAML(platform, nature) {
 
   const parsedet = _.get(YAMLcache, [platform, nature], null);
   if(parsedet === null)
-    throw new Error(`requested combo of Nature+Platform NOT supported`);
+    throw new Error(`requested combo of Nature+Platform (${platform}+${nature}) NOT supported`);
   
   return parsedet;
 }
@@ -119,7 +115,7 @@ function parse(nature, htmlo) {
     nature.platform, nature.nature, 'curl'
   );
 
-  debug("Parsing %s|%s with %j supported matches",
+  debug("Parsing %s|%s with %j checks",
     parsedetails.platform,
     parsedetails.nature, _.keys(parsedetails.logics));
 
@@ -136,7 +132,7 @@ function parse(nature, htmlo) {
 
     // the verify function only produce debug so far
     const determination = verifyConsistency(estimations);
-    debug("Final determination for %j is %s", estimations, determination);
+    debug("Final determination %j = %s", estimations, determination);
     return determination;
 
   } catch(error) {

@@ -26,26 +26,31 @@ async function queryScheduled(db, filter) {
   }
 }
 
-async function createScheduled(db, payload) {
+async function createScheduled(db, listofobjs) {
   const client = await connect(db);
-  try {
-    await client
-      .db()
-      .collection("scheduled")
-      .insertOne(payload);
-    debug("Scheduled operation succesfully added to DB");
-    await client.close();
-    /* successful creation is a 'true' */
-    return true;
-  } catch(error) {
-    await client.close();
-    if(error.code === 11000) {
-      /* duplication of an unique key */
-      return false;
+  const results = { inserted: 0, duplicated: 0, testId: [] };
+  for(const entry of listofobjs) {
+    debug("Inserting %s (%s)", entry.testId, entry.vantagePoint);
+    try {
+      await client
+        .db()
+        .collection("scheduled")
+        .insertOne(entry);
+      results.inserted++;
+      results.testId.push(entry.testId);
+    } catch(error) {
+      if(error.code === 11000) {
+        /* duplication of an unique key */
+        results.duplicated++;
+      } else {
+        await client.close();
+        debug("Error in createScheduled: %s", error.message);
+        throw new Error(`createScheduled: ${error.message}`);
+      }
     }
-    debug("Error in createScheduled: %s", error.message);
-    throw new Error(`createScheduled: ${error.message}`);
   }
+  await client.close();
+  return results;
 }
 
 module.exports = {

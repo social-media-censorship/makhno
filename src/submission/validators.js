@@ -73,7 +73,7 @@ function validateNature(input) {
     if(!nature)
       throw new Error(`Makhno do not currently support this url [${input}]`);
 
-    debug('Nature of [%s] foundas %s (%s)',
+    debug('Nature of [%s] found as %s (%s)',
       nature.href, nature.platform, nature.nature);
 
     return nature

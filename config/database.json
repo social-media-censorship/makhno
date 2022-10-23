@@ -12,7 +12,10 @@
   "scheduled": {
      "mongodb":"mongodb://localhost:27017/makhno",
      "index": [
-       { "key": { "id": 1 }, "options": { "unique": true } }
+       { "key": { "testId": 1 }, "options": { "unique": true } },
+       { "key": { "submissionId": 1 } },
+       { "key": { "platform": 1 } },
+       { "key": { "testTime": -1 } }
      ]
   },
   "results": {
