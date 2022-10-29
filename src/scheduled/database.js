@@ -53,7 +53,28 @@ async function createScheduled(db, listofobjs) {
   return results;
 }
 
+async function removeScheduled(db, testId) {
+  if(testId?.length !== 40) {
+    throw new Error(`Attempt to remove a testId with invalid size (${testId?.length})`);
+  }
+
+  const client = await connect(db);
+  try {
+    await client
+      .db()
+      .collection("scheduled")
+      .deleteOne({ testId });
+    await client.close();
+    return true;
+  } catch(error) {
+    debug("Error in removeScheduled %s: %s", testId, error.message);
+    await client.close();
+    return false;
+  }
+}
+
 module.exports = {
   queryScheduled,
   createScheduled,
+  removeScheduled,
 }

@@ -5,7 +5,7 @@ const { ensureIndex } = require('../../utils/build-index');
 const database = require('../../src/submission/database');
 const { connect } = require('../../utils/mongo');
 
-describe('Mongo Database', () => {
+describe('Database (mongo/submission)', () => {
 
   const testcfg = { 
     mongodb: 'mongodb://localhost:27017/teskhno'
@@ -16,7 +16,7 @@ describe('Mongo Database', () => {
   ]
   const expectedIndex = {
     "submission": 2,
-    "scheduled": 1
+    "scheduled": 4
   }
 
   const mockSubmission = {
