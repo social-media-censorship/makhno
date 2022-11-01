@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const { describe, expect, test } = require('@jest/globals');
-
 const database = require('../../src/scheduled/database');
+const { ensureIndex } =  require('../../utils/build-index');
 
 const mockScheduled  = require('../_payloads/scheduled.json');
 
@@ -10,6 +10,11 @@ describe('Database (mongo/scheduled)', () => {
   const testcfg = { 
     mongodb: 'mongodb://localhost:27017/teskhno'
   };
+
+  test(`Ensure indexes are present`, async () => {
+    const rv = await ensureIndex(testcfg, 'scheduled');
+    expect(rv).toHaveProperty('scheduled', 4);
+  });
 
   const newobj = _.clone(mockScheduled);
   newobj.iteration = 0;

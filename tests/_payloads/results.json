@@ -1,0 +1,42 @@
+[
+  {
+    "testId": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA1",
+    "platform": "tiktok",
+    "submissionId": "5555555555555555555555555555555555555555",
+    "countryCode": "IT",
+    "testTime": "2022-10-30",
+    "status": "accessible"
+  },
+  {
+    "testId": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA2",
+    "platform": "tiktok",
+    "submissionId": "5555555555555555555555555555555555555555",
+    "countryCode": "IT",
+    "testTime": "2022-11-03",
+    "status": "notfound"
+  },
+  {
+    "testId": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA3",
+    "platform": "tiktok",
+    "submissionId": "5555555555555555555555555555555555555555",
+    "countryCode": "IT",
+    "testTime": "2022-11-02",
+    "status": "notfound"
+  },
+  {
+    "testId": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA3",
+    "platform": "tiktok",
+    "submissionId": "5555555555555555555555555555555555555555",
+    "countryCode": "IT",
+    "testTime": "2022-11-02",
+    "status": "explicit"
+  },
+  {
+    "testId": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4",
+    "platform": "tiktok",
+    "submissionId": "5555555555555555555555555555555555555555",
+    "countryCode": "IT",
+    "testTime": "2022-11-01",
+    "status": "explicit"
+  }
+]

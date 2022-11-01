@@ -19,6 +19,14 @@ function verifyConsistency(triplet) {
   }
 }
 
+const determinationSupported = [
+  'accessible', // content has been found
+  'notfound',   // content was not found
+  'explicit',   // content was explicitly taken down
+  'ambiguous',  // something not clear that needs further analysis
+];
+
 module.exports = {
-  verifyConsistency
+  verifyConsistency,
+  determinationSupported,
 }

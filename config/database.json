@@ -21,10 +21,12 @@
   "results": {
      "mongodb":"mongodb://localhost:27017/makhno",
      "index": [
-       { "key": { "id": 1 }, "options": { "unique": true } },
+       { "key": { "testId": 1 } },
+       { "key": { "status": 1 } },
+       { "key": { "platform": 1 } },
        { "key": { "submissionId": 1 } },
-       { "key": { "vantagePoint": 1 } },
-       { "key": { "creationTime": -1 } }
+       { "key": { "countryCode": 1 } },
+       { "key": { "testTime": -1 } }
      ]
   }
 }

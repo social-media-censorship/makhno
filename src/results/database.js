@@ -28,30 +28,23 @@ async function queryResults(db, filter) {
 
 async function createResults(db, listofobjs) {
   const client = await connect(db);
-  const results = { inserted: 0, duplicated: 0, testId: [] };
+  let inserted = 0;
   for(const entry of listofobjs) {
-    entry.testTime = new Date(testTime);
-    debug("Inserting %s (%s)", entry.testId, entry.vantagePoint);
+    entry.testTime = new Date(entry.testTime);
     try {
       await client
         .db()
         .collection("results")
         .insertOne(entry);
-      results.inserted++;
-      results.testId.push(entry.testId);
+      inserted++;
     } catch(error) {
-      if(error.code === 11000) {
-        /* duplication of an unique key */
-        results.duplicated++;
-      } else {
-        await client.close();
-        debug("Error in createResults: %s", error.message);
-        throw new Error(`createResults: ${error.message}`);
-      }
+      await client.close();
+      debug("Error in createResults: %s", error.message);
+      throw new Error(`createResults: ${error.message}`);
     }
   }
   await client.close();
-  return results;
+  return inserted;
 }
 
 async function removeResults(db, testId) {
@@ -64,7 +57,7 @@ async function removeResults(db, testId) {
     await client
       .db()
       .collection("results")
-      .deleteOne({ testId });
+      .deleteMany({ testId });
     await client.close();
     return true;
   } catch(error) {

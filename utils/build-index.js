@@ -34,28 +34,32 @@ async function ensureIndex(db, filter) {
   }));
   debug("Collections/Indexes considered: %d", indexes.length);
 
-  const client = await connect(db);
-
   const createdIndexes = {};
   try {
+    const client = await connect(db);
+
     for(const collection of indexes) {
-      debug("Checkingx & configuring index %s (%d)",
+      debug("Configuring mongodb index %s (%d)",
         collection.collection, collection.index.length);
       for(const index of collection.index) {
-        r = await client
+        /* ignore who says that 'await' here is not necessary:
+          IT IS */
+        await client
           .db()
           .collection(collection.collection)
           .createIndex(index.key, index.options || {});
+        /* TODO find the non-deprecated method */
         debug("Index %s OK", _.keys(index.key));
       }
       createdIndexes[collection.collection] = collection.index.length;
     }
+    await client.close();
+    return createdIndexes;
   } catch(error) {
+    await client.close();
     debug("Error in createIndex: %s", error.message);
-    return false;
+    return null;
   }
-  await client.close();
-  return createdIndexes;
 }
 
 module.exports = {
