@@ -23,6 +23,7 @@
      "index": [
        { "key": { "id": 1 }, "options": { "unique": true } },
        { "key": { "submissionId": 1 } },
+       { "key": { "vantagePoint": 1 } },
        { "key": { "creationTime": -1 } }
      ]
   }

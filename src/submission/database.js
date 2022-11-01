@@ -28,6 +28,7 @@ async function querySubmission(db, filter) {
 
 async function createSubmission(db, payload) {
   const client = await connect(db);
+  payload.creationTime = new Date(payload.creationTime);
   try {
     await client
       .db()

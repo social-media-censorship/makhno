@@ -9,6 +9,7 @@
     "detour": "DEBUG=* bin/detour-everything.mjs",
     "submission": "DEBUG=*,-express:*,-body-parser:* bin/submission.mjs",
     "scheduled": "DEBUG=*,-express:*,-body-parser:* bin/scheduled.mjs",
+    "results": "DEBUG=*,-express:*,-body-parser:* bin/results.mjs",
     "gafam": "DEBUG=*,-express:*,-body-parser:*,-utils:parsinghq* bin/gafam.mjs",
     "test": "jest"
   },

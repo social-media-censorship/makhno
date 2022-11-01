@@ -24,10 +24,12 @@ function queryScheduled(input) {
       else if(valid === 'platform' && gafam.platformSupported(p[valid])) {
         _.set(memo, valid, p[valid]);
       }
-      else if(valid === 'after') {
+      else if(valid === 'after' && p[valid]?.length) {
         /* in this validation process we rebuild the input and conver what is 
          * human-readalbe (like 'after') to the actual fields in mongodb */
         const check = new Date(p[valid]);
+        if(check.valueOf() === NaN)
+          throw new Error(`Invalid Date from: [${p[valid]}]`);
         memo['testTime'] = { "$gte" : check };
       }
       return memo;
@@ -44,10 +46,10 @@ function validateScheduled(scheduled) {
   /* this only perform a check of the fields, but in theory it
    * can also verify if the submissionId represent something valid */
   const fields = ['iteration', 'testTime', 'vantagePoint',
-    'platform', 'submissionId', 'testId'];
+    'platform', 'submissionId', 'testId', 'targetURL' ];
 
   const accepted = _.reduce(scheduled, function(memo, input) {
-    const n = _.pick(input, ['iteration', 'testTime', 'vantagePoint', 'platform', 'submissionId', 'testId']);
+    const n = _.pick(input, fields);
     if(_.keys(n).length !== fields.length) {
       debug("Invalid scheduled object! missing fields in: %j", input);
     } else {

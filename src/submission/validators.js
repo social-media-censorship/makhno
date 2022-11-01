@@ -25,10 +25,12 @@ function querySubmission(input) {
       else if(valid === 'platform' && gafam.platformSupported(p[valid])) {
         _.set(memo, valid, p[valid]);
       }
-      else if(valid === 'after') {
+      else if(valid === 'after' && p[valid]?.length) {
         /* in this validation process we rebuild the input and conver what is 
          * human-readalbe (like 'after') to the actual fields in mongodb */
         const check = new Date(p[valid]);
+        if(check.valueOf() === NaN)
+          throw new Error(`Invalid Date from: [${p[valid]}]`);
         memo['creationTime'] = { "$gte" : check };
       }
       /* else, simply the plausible filter mechanism wasn't present in this request */

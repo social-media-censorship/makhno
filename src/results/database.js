@@ -6,36 +6,36 @@
  */
 
 const { connect } = require('../../utils/mongo');
-const debug = require('debug')('scheduled:database');
+const debug = require('debug')('results:database');
 
-async function queryScheduled(db, filter) {
+async function queryResults(db, filter) {
   const client = await connect(db);
   try {
     let r = await client
       .db()
-      .collection("scheduled")
+      .collection("results")
       .find(filter)
       .toArray();
-    debug("Scheduled query by %O = %d", filter, r.length);
+    debug("results query by %O = %d", filter, r.length);
     await client.close();
     return r;
   } catch(error) {
-    debug("Error in queryScheduled: %s", error.message);
+    debug("Error in queryResults: %s", error.message);
     await client.close();
-    throw new Error(`queryScheduled: ${error.message}`);
+    throw new Error(`queryResults: ${error.message}`);
   }
 }
 
-async function createScheduled(db, listofobjs) {
+async function createResults(db, listofobjs) {
   const client = await connect(db);
   const results = { inserted: 0, duplicated: 0, testId: [] };
   for(const entry of listofobjs) {
+    entry.testTime = new Date(testTime);
     debug("Inserting %s (%s)", entry.testId, entry.vantagePoint);
-    entry.testTime = new Date(entry.testTime);
     try {
       await client
         .db()
-        .collection("scheduled")
+        .collection("results")
         .insertOne(entry);
       results.inserted++;
       results.testId.push(entry.testId);
@@ -45,8 +45,8 @@ async function createScheduled(db, listofobjs) {
         results.duplicated++;
       } else {
         await client.close();
-        debug("Error in createScheduled: %s", error.message);
-        throw new Error(`createScheduled: ${error.message}`);
+        debug("Error in createResults: %s", error.message);
+        throw new Error(`createResults: ${error.message}`);
       }
     }
   }
@@ -54,7 +54,7 @@ async function createScheduled(db, listofobjs) {
   return results;
 }
 
-async function removeScheduled(db, testId) {
+async function removeResults(db, testId) {
   if(testId?.length !== 40) {
     throw new Error(`Attempt to remove a testId with invalid size (${testId?.length})`);
   }
@@ -63,19 +63,19 @@ async function removeScheduled(db, testId) {
   try {
     await client
       .db()
-      .collection("scheduled")
+      .collection("results")
       .deleteOne({ testId });
     await client.close();
     return true;
   } catch(error) {
-    debug("Error in removeScheduled %s: %s", testId, error.message);
+    debug("Error in removeResults %s: %s", testId, error.message);
     await client.close();
     return false;
   }
 }
 
 module.exports = {
-  queryScheduled,
-  createScheduled,
-  removeScheduled,
+  queryResults,
+  createResults,
+  removeResults,
 }

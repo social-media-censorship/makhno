@@ -1,9 +1,13 @@
 #!node_modules/.bin/zx
 import logger from 'debug';
-const debug = logger('bin:detour-everything'); // well, nearly everything
 import _ from 'lodash';
 
-/* the code is actually executed at the end */
+const debug = logger('bin:detour-everything'); // well, "nearly" everything
+const { report } = require('../utils/cli');
+const { twocc } = require('../utils/countries');
+
+/* the code is executed at the end,
+ * on top there are declarations and functions */
 
 const ports = {
   gafam: 2001,
@@ -14,30 +18,49 @@ const ports = {
 
 const payloadsDir = path.join('tests', '_payloads');
 
-async function report(retval, msg) {
-
-  if(retval.status > 300) {
-    /* in this case we are in a 4XX 5XX error */
-    const errorMessage = await retval.text();
-    debug("Error (%d): %s: %s", retval.status, msg, errorMessage);
-    return;
-  }
-
-  const r = await retval.json();
-  if(JSON.stringify(r).length > 2) {
-    debug("(%d) %s: %d bytes (keys: %d)", retval.status, msg,
-      JSON.stringify(r).length, _.keys(r).length);
-  } else
-    debug("Empty answer, HTTP status code: %d", retval.status);
-}
-
 const payload = {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: null
 };
 
-async function testSubmission(server) {
+async function interactWithScheduledAPI(server) {
+
+  const sfile = path.join(payloadsDir, 'scheduled.json')
+  debug("Opening file %s");
+  const scheduledo = await fs.readJson(sfile);
+
+  const scheduledPayload = _.flatten(_.times(6, function(i) {
+    return _.map(twocc, function(countryCode) {
+      const o = _.clone(scheduledo);
+      o.iteration = i;
+      o.vantagePoint = countryCode;
+      o.testId = `${o.testId.substring(0, 37)}${i}${countryCode}`;
+      return o;
+    });
+  }));
+  payload.body = JSON.stringify({
+    auth: "³!A!STRING!³",
+    scheduled: scheduledPayload
+  })
+
+  debug("Sending scheduled payload %d objects!", scheduledPayload.length);
+  await report(
+    await fetch(`${server}/scheduled`, payload),
+    "POST to scheduled"
+  );
+  await report(
+    await fetch(`${server}/scheduled/${JSON.stringify({platform:'tiktok'})}`),
+    "GET to scheduled"
+  );
+
+}
+
+async function interactWithResultsAPI(server) {
+
+}
+
+async function interactWithSubmissionAPI(server) {
   const sfile = path.join(payloadsDir, 'submission.json')
   debug("Opening file %s");
   const submissionPayload = await fs.readJson(sfile);
@@ -90,7 +113,7 @@ async function testSubmission(server) {
   );
 }
 
-async function testGAFAM(server) {
+async function interactWithGAFAMAPI(server) {
   const files = [
     'invalidYTChannel.html',
     'validYTChannel.html',
@@ -124,9 +147,22 @@ async function wrapTestSubmission() {
     const text = await isUp.text();
     if(isUp.status !== 200 || text !== 'OK')
       throw new Error("Unexpected server condition");
-    await testSubmission(server);
+    await interactWithSubmissionAPI(server);
   } catch(error) {
     console.log(`Submission server error at ${server}: ${error.message}`);
+  }
+}
+
+async function wrapTestScheduled() {
+  const server = `http://localhost:${ports.scheduled}`;
+  try {
+    const isUp = await fetch(`${server}/health`);
+    const text = await isUp.text();
+    if(isUp.status !== 200 || text !== 'OK')
+      throw new Error("Unexpected server condition");
+    await interactWithScheduledAPI(server);
+  } catch(error) {
+    console.log(`Scheduled server error at ${server}: ${error.message}`);
   }
 }
 
@@ -137,15 +173,30 @@ async function wrapTestGAFAM() {
     const text = await isUp.text();
     if(isUp.status !== 200 || text !== 'OK')
       throw new Error("Unexpected server condition");
-    await testGAFAM(server);
+    await interactWithGAFAMAPI(server);
   } catch(error) {
     console.log(`GAFAM server error at ${server}: ${error.message}`);
   }
 }
 
+async function wrapTestResults() {
+  const server = `http://localhost:${ports.results}`;
+  try {
+    const isUp = await fetch(`${server}/health`);
+    const text = await isUp.text();
+    if(isUp.status !== 200 || text !== 'OK')
+      throw new Error("Unexpected server condition");
+    await interactWithResultsAPI(server);
+  } catch(error) {
+    console.log(`Results server error at ${server}: ${error.message}`);
+  }
+}
 
 // Here is where the execution starts:
 console.log(`This tool simply connects to all the implemented API and check if they works`);
 console.log(`Plus initially initialized the dataset with some dummy working values`);
 await wrapTestSubmission();
-await wrapTestGAFAM()
+await wrapTestScheduled();
+process.exit(1)
+await wrapTestGAFAM();
+await wrapTestResults();

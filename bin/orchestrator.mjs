@@ -1,30 +1,15 @@
 #!node_modules/.bin/zx
-
 import { argv, fs, path } from 'zx';
 import logger from 'debug';
 import _ from 'lodash';
 
+const { report } = require('../utils/cli');
 const { computeId } = require('../utils/various');
 const debug = logger('bin:orchestrator');
 const moment = require('moment');
 
-/* the code is actually executed at the end */
-
-async function report(retval, msg) {
-
-  if(retval.status > 300) {
-    /* in this case we are in a 4XX 5XX error */
-    const errorMessage = await retval.text();
-    debug("Error (%d): %s: %s", retval.status, msg, errorMessage);
-    return;
-  }
-
-  if(JSON.stringify(r).length > 2) {
-    debug("(%d) %s: %d bytes (keys: %d)", retval.status, msg,
-      JSON.stringify(r).length, _.keys(r).length);
-  } else
-    debug("Empty answer, HTTP status code: %d", retval.status);
-}
+/* the code is executed at the end,
+ * on top there are declarations and functions */
 
 const payload = {
   method: 'POST',

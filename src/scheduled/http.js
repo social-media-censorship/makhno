@@ -7,7 +7,6 @@ const _ = require('lodash');
 const debug = require('debug')('scheduled:http');
 
 const webutils = require('../../utils/webutils');
-
 const database = require('./database');
 const validators = require('./validators');
 
