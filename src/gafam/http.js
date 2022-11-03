@@ -45,7 +45,7 @@ function processHTML(req, res) {
 
 
 /* BELOW, the routes as loaded by utils/express.js
-  trivia: normally the wrapped function are async, bug
+  trivia: normally the wrapped function are async, but
   gafam interactions do not need to access to DB or network
   so they are natively sync */
 async function getSupportedGAFAM(db, expressApp) {

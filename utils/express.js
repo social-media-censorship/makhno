@@ -8,8 +8,8 @@
  *
  */
 
-const express = require('express')
-const bodyParser = require('body-parser');
+import express from 'express';
+import { json, urlencoded } from 'body-parser';
 const debug = require('debug')('utils:express');
 
 async function bindHTTPServer(routeConfig, serverConfig, dbConfig) {
@@ -20,8 +20,8 @@ async function bindHTTPServer(routeConfig, serverConfig, dbConfig) {
         debug("Binded sucessfully port %d", serverConfig.port);
     });
 
-    expressApp.use(bodyParser.json({ limit: '2mb' }));
-    expressApp.use(bodyParser.urlencoded({ extended: true }));
+    expressApp.use(json({ limit: '2mb' }));
+    expressApp.use(urlencoded({ extended: true }));
 
     for (const route of routeConfig.routes) {
        await route(dbConfig, expressApp);
@@ -37,6 +37,6 @@ async function bindHTTPServer(routeConfig, serverConfig, dbConfig) {
      * and so far we don't need to return anything */
 }
 
-module.exports = {
+export default {
     bindHTTPServer
 }
