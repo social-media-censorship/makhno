@@ -1,6 +1,6 @@
 # makhno
 
-Makhno is the tool described by the article: [New Tool Makhno will expose geographic social media censorship](https://foundation.mozilla.org/en/blog/new-tool-makhno-will-expose-geographic-social-media-censorship/)
+Makhno is the tool described by the article: [New Tool Makhno will expose geographic social media censorship](https://foundation.mozilla.org/en/blog/new-tool-makhno-will-expose-geographic-social-media-censorship/), and is the backend technology implemented in [makhno.net](https://makhno.net).
 
 ## Specification
 
