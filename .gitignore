@@ -17,3 +17,6 @@ coverage/
 # agent config files and cache
 agents/*.yaml
 agents/*.json
+
+# airtable secrets
+config/airtable.json

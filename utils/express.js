@@ -7,9 +7,9 @@
  * boxes, and guarantee that one port is one service for separation pourposes 
  *
  */
+const express = require('express');
+const { json, urlencoded } = require('body-parser');
 
-import express from 'express';
-import { json, urlencoded } from 'body-parser';
 const debug = require('debug')('utils:express');
 
 async function bindHTTPServer(routeConfig, serverConfig, dbConfig) {
@@ -37,6 +37,6 @@ async function bindHTTPServer(routeConfig, serverConfig, dbConfig) {
      * and so far we don't need to return anything */
 }
 
-export default {
-    bindHTTPServer
+module.exports = {
+    bindHTTPServer,
 }

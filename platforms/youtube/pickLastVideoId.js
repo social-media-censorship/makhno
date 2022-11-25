@@ -1,6 +1,7 @@
-/* this is a "plugin" meant to inspect URL format in the case 
- * and return the videoId at the end of an URL. it works 
- * in two cases and should not be considered something generic */
+/* this is a "plugin" meant to inspect youtube URL and return,
+ * if present, the videoId at the end of an URL. it works
+ * in two cases (youtube.be short URL and standard video URL)
+ * and should not be considered something generic */
 
 function plugin(urlo) {
   const chunks = urlo.href.split('/');
