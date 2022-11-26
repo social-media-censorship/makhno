@@ -8,6 +8,11 @@ import logger from 'debug';
 
 const debug = logger('bin:airtable-fetcher');
 
+if(!argv.marker) {
+  console.log(`--marker is mandatory to distinguish manual import from other submission`);
+  process.exit(1)
+}
+
 const settingsf = path.join('config', 'airtable.json');
 const settings = await fs.readJSON(settingsf);
 
@@ -58,6 +63,7 @@ async function submitAll(urls) {
 async function submit(url, server) {
   const body = {
     url,
+    marker: argv.marker,
     countryCodes: [
       "QA", // Qatar
       "NL", // Netherlands

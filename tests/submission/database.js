@@ -22,6 +22,7 @@ describe('Database (mongo/submission)', () => {
   const mockSubmission = {
     platform: 'youtube',
     details: { videoId: 'n61ULEU7CO0' },
+    marker: 'mocked',
     nature: 'video',
     supported: true,
     id: '4cb03bfe27981bf4d3e10aba557d0a2f0e368603',
@@ -88,6 +89,8 @@ describe('Database (mongo/submission)', () => {
       .querySubmission(testcfg, { id: mockSubmission.id });
     expect(l).toHaveLength(1);
     const existing = l[0];
+    expect(existing)
+      .toHaveProperty('marker', mockSubmission.marker)
     expect(existing)
       .toHaveProperty('nature', mockSubmission.nature)
     expect(existing)

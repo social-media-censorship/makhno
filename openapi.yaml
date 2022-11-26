@@ -142,7 +142,7 @@ paths:
       summary: Submit to the Makhno server the request to verify a `targetURL`
       operationId: submitURL
       requestBody:
-        description: The payload contains a `targetURL` and one or more country code, in the hopes some `agent` that runs in the right ISP, would pull this submission and perform an `availabilityCheck` from their `vantagePoint`. Internally the `target URL` is validated in the same way as in the /GAFAM/ endpoints.
+        description: The payload contains a `targetURL` and one or more country code, in the hopes some `agent` that runs in the right ISP, would pull this submission and perform an `availabilityCheck` from their `vantagePoint`. Internally the `target URL` is validated in the same way as in the /GAFAM/ endpoints. It also host a `marker`, a field usable to mark submission. It should help managing, filtering, prioritizing URLs based on the project marker.
         content:
           application/json:
             schema:
@@ -383,6 +383,9 @@ components:
           type: array
           items:
             type: string
+        marker:
+          type: string
+          description: a string 5 chars or more, that would become lowercase.
     SubmissionDetail:
       type: object
       properties:

@@ -49,15 +49,21 @@ async function createSubmission(db, req, res) {
    * in the same way as in the /GAFAM/ endpoints. */
 
   /* body should have this format
-   * { "url": "string", "countryCodes": [ "string" ] } */
+   * { "url": "string", "countryCodes": [ "string" ], "marker": "string" } */
   const nature = validators.validateNature(req.body.url);
+
+  const marker = validators.validateMarker(req.body.marker);
 
   /* This API has potentially three HTTP return values:
    * duplicated (handled below),
    * inserted (default),
-   * error (default error handler, or specific res.status() ) */
-  const submission = validators.createSubmission(req.body?.countryCodes, nature);
-  debug('Ready to add %s %s (%s)', submission.platform, submission.nature, submission.id);
+   * error (default error handler; any validator can throw */
+  const submission = validators.createSubmission(
+    req.body?.countryCodes, nature, marker);
+
+  debug('Ready to add %s %s [%s] [%s]', submission.platform, submission.nature,
+    submission.marker, submission.id);
+
   const inserted = await database.createSubmission(db, submission);
   if(inserted === false) {
     debug("Not inserted (already present in DB)");

@@ -47,10 +47,11 @@ function querySubmission(input) {
   }
 }
 
-function createSubmission(countryCodes, nature) {
+function createSubmission(countryCodes, nature, marker) {
   /* this function merge the nature (returned from processURL)
    * and the submission input, to actually create a submission */
   nature.creationTime = new Date();
+  nature.marker = marker;
 
   if(!countryCodes || countryCodes.length === 0) {
     debug("A submission without country codes to %s", nature.href);
@@ -59,6 +60,17 @@ function createSubmission(countryCodes, nature) {
     nature.countryCodes = countryCodes;
   }
   return nature;
+}
+
+const MARKER_MINIMUM_SIZE = 5;
+function validateMarker(marker) {
+
+  if(!(marker?.length >= MARKER_MINIMUM_SIZE)) {
+    debug("submission marker needs to be > than 2 bytes (%s)", marker);
+    throw new Error(`validateMarker fail: it should ${MARKER_MINIMUM_SIZE} chars or longer`);
+  }
+
+  return _.toLower(marker);
 }
 
 function validateNature(input) {
@@ -86,6 +98,7 @@ function validateNature(input) {
 
 module.exports = {
   querySubmission,
+  validateMarker,
   validateNature,
   createSubmission,
 }

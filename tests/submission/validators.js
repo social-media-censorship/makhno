@@ -29,6 +29,41 @@ describe('querySubmission input validator', () => {
   });
 });
 
+describe('createSubmission validator', () => {
+
+  test(`all the fields should be in place`, () => {
+    const ytvid = 'https://www.youtube.com/watch?v=theYTvideoID';
+    const nature = validators.validateNature(ytvid);
+
+    const x = validators
+      .createSubmission(["AB"], nature, "the marker");
+
+    expect(x).toHaveProperty('creationTime');
+    expect(x).toHaveProperty('countryCodes');
+    expect(x.countryCodes).toHaveLength(1);
+    expect(x).toHaveProperty('marker', "the marker");
+
+    const y = validators
+      .createSubmission([], nature, "the marker");
+    expect(y.countryCodes.length).toBe(0);
+
+  });
+
+});
+
+describe('Marker validation', () => {
+
+  test(`marker can't work if smaller than 5 chars`, () => {
+    expect(() => validators.validateMarker("smol")).toThrow();
+  });
+
+  test(`marker should become lowercase`, () => {
+    const x = validators.validateMarker("MarkerX");
+    expect(x).toBe("markerx");
+  });
+
+});
+
 describe('validateNature format and return Nature', () => {
 
   test(`should fail on invalid URL`, () => {

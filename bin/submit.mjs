@@ -1,6 +1,7 @@
 #!node_modules/.bin/zx
 import _ from 'lodash';
 import { argv, question } from 'zx';
+import { pickRandomTLCC } from '../utils/countries.js';
 
 const endpoint = argv.server ? `${argv.server}` : "http://localhost:2002";
 console.log(`Using endpoint: ${endpoint} (--server overrides)`);
@@ -10,12 +11,21 @@ if(!argv.url) {
   process.exit(1);
 }
 
+if(!argv.marker) {
+  console.log("This tool needs a --marker and can't work without");
+  process.exit(1);
+}
+
 let cc = [];
 if(!argv.cc) {
   console.log("Missing --cc (country code, in two letter)");
   const proposed = await question("Do you want to specify it? empty means random: ");
   if(proposed.length)
     cc = [ proposed ];
+  else {
+    cc = [ pickRandomTLCC(), pickRandomTLCC() ];
+    console.log(`Picker random Countries: ${cc}`);
+  }
 }
 
 try {
@@ -33,7 +43,8 @@ const payload = {
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
     "url": argv.url,
-    "countryCodes": cc
+    "countryCodes": cc,
+    "marker": argv.marker,
   })
 };
 

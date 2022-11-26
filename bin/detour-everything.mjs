@@ -64,6 +64,7 @@ async function interactWithSubmissionAPI(server) {
   const sfile = path.join(payloadsDir, 'submission.json')
   debug("Opening file %s");
   const submissionPayload = await fs.readJson(sfile);
+  submissionPayload.marker = 'detour';
   payload.body = JSON.stringify(submissionPayload)
 
   /* ------------------------------- */
