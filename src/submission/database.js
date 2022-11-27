@@ -5,6 +5,8 @@
  * would be supported.
  */
 
+const _ = require('lodash');
+
 const { connect } = require('../../utils/mongo');
 const debug = require('debug')('utils:database');
 
@@ -16,7 +18,8 @@ async function querySubmission(db, filter) {
       .collection("submission")
       .find(filter)
       .toArray();
-    debug("Submissions by %O = %d", filter, r.length);
+    debug("Submissions by %O = %d [%j]",
+      filter, r.length, _.countBy(r, 'marker'));
     await client.close();
     return r;
   } catch(error) {

@@ -1,17 +1,14 @@
 #!node_modules/.bin/zx
 
-import { argv, fs, path, sleep } from 'zx';
+import { argv, fs, path } from 'zx';
 import logger from 'debug';
 import _ from 'lodash';
-import { spawn } from 'child_process';
 
 // review const child_process = require('child_process');
 const debug = logger('agent:curl');
 const yaml = require('yaml');
 const moment = require('moment');
 const countries = require('../utils/countries');
-
-const SLEEP_TIME = 10; // not an option atm
 
 const endpoint = argv.server ? `${argv.server}` : "http://localhost:2003";
 console.log(`Using endpoint: ${endpoint} (--server overrides)`);
@@ -47,73 +44,66 @@ function curlifyOptions(listof, testobj) {
     }, []);
 }
 
-function checkLogFile(testobj) {
+async function curl(testobj, i) {
+    const vantagePoint = testobj.vantagePoint; // the country code
+    const targetURL = testobj.targetURL; // the destination URL to test
     const testId = testobj.testId; // the unique ID of the test
+
+    if(!vantagePoint || !targetURL || !testId)
+        throw new Error(`Incomplete content in scheduled object`);
+
+    console.log(testobj);
+    console.log(vantagePoint, targetURL, testId);
+
     const logfile = path.join('agents', 'logs', `${testId}.log`);
-
-    if(!fs.existsSync(logfile)) {
-        return {
-            proceed: true,
-            logfile
-        } 
-    } else {
-        return {
-            proceed: false,
-            message: "Test already performed",
-            logfile,
-        }
-    }
-}
-async function curl(logfile, testobj) {
-
-    // remind rootoptions is a global variable
     const options = curlifyOptions(rootoptions, testobj);
-
-    // the options comes from the configuration YAML
-    const optionList = _.concat(options, [
+    const optionString = _.concat(options, [
         "-o",
         logfile,
         "-kis",
-        testobj.href
+        targetURL
     ]);
+    console.log(optionString);
+    const po = await $`curl ${optionString}`;
 
-    debug("Starting child_process.spawn: %j", optionList);
-    console.log(optionList);
-    await spawn("curl", optionList);
+    // still WIP
+    console.log(po);
+    debug("%d> Completed %s (%s %d)",
+        i, countries.namecc[vantagePoint],
+        vantagePoint, stats.size);
 
-    debug("Completed %s from %s (%s)",
-        testobj.href, testobj.vantagePoint,
-        countries.namecc[testobj.vantagePoint]
-    );
-
+    /* todo read output file */
     return logfile;
 }
 
+function validateCountryCode(clinput) {
+
+}
+
 async function validatePlatform(clinput) {
-    /* this is quick and dirty but should be via API */
-    const supported = ["tiktok", "youtube"];
-    if(supported.indexOf(clinput) === -1) {
-        console.log(`Platform invalid (${clinput}): supported ${supported}`);
-        process.exit(1);
-    }
-    return clinput;
+
 }
 
 function validateTime(clinput) {
     return moment(new Date(clinput).toISOString()).format();
 }
 
-if(!argv.vantage) {
-    console.log("You need to specify --vantage <TwoLetterCountryCode>");
-    console.log("And this is not validated server side, so be mindful");
+const globfopt = path.join('agents', 'global.yaml');
+if(!fs.existsSync(globfopt)) {
+console.log(`Missing mandatory file: ${globfopt}`);
+console.log(`Check README.md!`);
+	process.exit(1);
+}
+
+if(!argv.everywhere) {
+    console.log("Just to remind you, use --everywhere");
     process.exit(1);
 }
 
-if(argv.marker) {
-    console.log(`--marker ${argv.marker} would be honored in shaping request`);
-}
+// continua da qui a rivedere
+process.exit(1)
 
-const twlcc = countries.validate(argv.vantage);
+const twlcc = argv.everywhere ? [] : validateCountryCode(argv.whoarewe);
 
 if(!argv.platform) {
     console.log("You need to specify --platform");
@@ -121,56 +111,35 @@ if(!argv.platform) {
 }
 const platformf = await validatePlatform(argv.platform);
 
-if(!platformf || !twlcc) {
-    console.log("Validation fail: --platform and --vantage is mandatory");
-}
-
-/*
--- scheduled provide a default and this option is not tested
 if(!argv.time) {
     console.log("You might want to specify a HH:MM combo as --time, default is 00:00");
 }
 const timef = argv.time ? validateTime(argv.time) : moment().startOf('day');
-*/
 
-let response = null;
+let scheduled = [];
 try {
     const isUp = await fetch(`${endpoint}/health`);
     const text = await isUp.text();
     if(isUp.status !== 200 || text !== 'OK')
         throw new Error("Unexpected server condition");
 
-    const options = {
-        "countryCode": twlcc,
+    const param = JSON.stringify({
+        "countryCodes": twlcc,
+        "after": timef,
         "platform": platformf
-    };
-
-    if(argv.marker)
-        options.marker = argv.marker;
-
-    /* if(timef) {
-        debug("This option hasn't been tested");
-        options.day = timef;
-    } */
-
-    const param = JSON.stringify(options);
+    });
     debug("Connecting to fetch scheduled tasks with (%s)", param);
-    const connection = await fetch(`${endpoint}/scheduled/${param}`);
-    response = await connection.json();
+    const response = await fetch(`${endpoint}/scheduled/${param}`);
+    scheduled = await response.json();
 } catch(error) {
     console.log(`Submission server error at ${endpoint}: ${error.message}`);
     process.exit(1);
 }
 
-if(!response || !response.amount) {
-    console.log(`No data retrieved with this options`);
-    process.exit(1);
-}
-
-console.log(`Fetched ${response.amount} objects to connect`);
+console.log(`Fetched ${scheduled.length} objects to connect`);
 
 const rootoptions = yaml.parse(
-    await fs.readFile(path.join('agents', 'curl.yaml'), 'utf-8')
+    await fs.readFile(globfopt, 'utf-8')
 );
 
 /* normally the country code might be used to specift a proxy among your
@@ -178,19 +147,9 @@ const rootoptions = yaml.parse(
  * asked for test that has to run from their own position */
 debug("Options imported: %O", rootoptions.options);
 
-for (const schobj of response.scheduled) {
+for (const schobj of scheduled) {
     /* scheduled object is from the db/API
      * rootoptions is the agent/curl.yaml */
-    debug("Connecting to %O", schobj);
-    const status = checkLogFile(schobj);
-    if(status.proceed) {
-        const results = await curl(status.logfile, schobj);
-        debug("Connection complete sleep for %d seconds", SLEEP_TIME);
-        await sleep(SLEEP_TIME * 1000);
-    } else {
-        console.log(`Not proceeding (${status.message})`);
-        await sleep(500);
-    }
-
-    /* TODO handle the logfile to the GAFAM api */
+    const logfile = await curl(schobj, rootoptions);
+    console.log(logfile);
 }

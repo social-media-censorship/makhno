@@ -8,15 +8,31 @@
 const { connect } = require('../../utils/mongo');
 const debug = require('debug')('scheduled:database');
 
-async function queryScheduled(db, filter) {
+async function queryScheduled(db, querySpecs) {
+
+  // querySpecs has .firstMatch, and .lastMatch
+  debug("Querying scheduled by %j and %j",
+    querySpecs.firstMatch, querySpecs.lastMatch);
+
+  const lookupDetails = {
+    from: "submission",
+    localField: "submissionId",
+    foreignField: "id",
+    as: "submission"
+  };
+
   const client = await connect(db);
   try {
     let r = await client
       .db()
       .collection("scheduled")
-      .find(filter)
+      .aggregate([
+        { $match: querySpecs.firstMatch },
+        { $lookup: lookupDetails },
+        { $match: querySpecs.lastMatch }
+      ])
       .toArray();
-    debug("Scheduled query by %O = %d", filter, r.length);
+    debug("Aggreation query returns %d objects", r.length);
     await client.close();
     return r;
   } catch(error) {

@@ -11,9 +11,49 @@ const database = require('./database');
 const validators = require('./validators');
 
 async function queryScheduled(db, req, res) {
+
   const filter = validators.queryScheduled(req.params.filter);
-  debug("Querying scheduled objects with filter %j", filter);
-  return await database.queryScheduled(db, filter);
+
+  /* this part also define what is mandatory and what is not */
+  const firstMatch = {};
+  if(filter.testTime)
+    firstMatch['testTime'] = filter.testTime
+  if(filter.countryCode)
+    firstMatch['vantagePoint'] = filter.countryCode;
+
+  const lastMatch = filter.platform ? {
+    'submission.0.platform': filter.platform
+  } : {};
+  if(filter.marker)
+    lastMatch['submission.0.marker'] = filter.marker;
+
+  /* execute an aggregation query (match+lookup+match) */
+  const nested = await database.queryScheduled(db, {
+    firstMatch,
+    lastMatch
+  });
+  /* The content benefit of some cleaning and looks like this:
+      iteration 0
+      testTime 2022-11-27T11:20:44.436+00:00
+      vantagePoint "QA"
+      submissionId "dde1cf8afb085f53e1f02e31d7dcd880cbcd5929"
+      testId "fafb77dbf0c6c707cc74cbfb726e820af84ad921"
+      submission Array [1]
+  */
+  const retval = _.map(nested, function(obj) {
+    const schedfields = ['iteration', 'testTime', 'vantagePoint', 'testId', 'submissionId'];
+    const submifields = ['nature', 'countryCodes', 'href', 'marker', 'creationTime', 'platform' ];
+    return {
+      ..._.pick(obj, schedfields),
+      ..._.pick(obj.submission[0], submifields),
+    };
+  });
+  debug("Returning %d cleaned scheduled objects", retval.length);
+  /* pagination and error handling not implemented yet */
+  return {
+    scheduled: retval,
+    amount: retval.length
+  }
 };
 
 async function createScheduled(db, req, res) {

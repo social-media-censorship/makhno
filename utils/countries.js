@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const debug = require('debug')('utils:countries');
 
 const twocc = [
   'AF',
@@ -335,7 +336,7 @@ const namecc = [
   'Montserrat',
   'Morocco',
   'Mozambique',
-  'Myanmar ',
+  'Myanmar',
   'Namibia',
   'Nauru',
   'Nepal',
@@ -427,10 +428,23 @@ function pickRandomTLCC() {
   return _.sample(twocc);
 }
 
+function validate(clinput) {
+    const uptc  = _.toUpper(clinput);
+    const i = twocc.indexOf(uptc);
+    if(i === -1) {
+      debug(`invalid TwoLetterCountryCode (${clinput})`);
+      throw new Error(`Unsupported two letter country code`);
+    }
+    debug("Validated twoLCC %s as [%s]",
+      twocc[i], namecc[i]);
+    return uptc;
+}
+
 module.exports = {
   twocc,
   namecc,
   countryNumber,
   pickRandomTLCC,
+  validate,
 };
 

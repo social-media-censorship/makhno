@@ -33,7 +33,7 @@ async function pickRecentSubmission(lastCheckDate, server) {
     const submissionList = await response.json();
     return submissionList;
   } catch(error) {
-    console.log(`Submission server error at ${endpoint}: ${error.message}`);
+    console.log(`Server error at ${endpoint}: ${error.message}`);
     process.exit(1);
   }
 }
