@@ -20,6 +20,12 @@ function querySelector(d, subject) {
   return node;
 };
 
+function countSelectorsMatch(d, subject) {
+  const nodes = d.querySelectorAll(subject);
+  ddeta("querySelectorAll found %d elements", nodes.length);
+  return nodes.length;
+}
+
 function textContentBe(accumulated, subject) {
   const node = _.last(accumulated);
   if(!node)
@@ -57,6 +63,9 @@ function apply(plogic, htmlo) {
         break;
       case 'textContentBe':
         memo.output.push(textContentBe(memo.output, subject));
+        break;
+      case 'countSelectorsMatch':
+        memo.output.push(countSelectorsMatch(memo.input.document, subject));
         break;
       default:
         throw new Error(`Invalid command: ${command} (subject is ${subject})`);

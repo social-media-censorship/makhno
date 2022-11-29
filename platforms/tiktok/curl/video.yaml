@@ -1,0 +1,13 @@
+platform: tiktok
+nature: video
+logics:
+  - accessible:
+    - countSelectorsMatch: 'h4 > a[href^="/music/"]'
+    - shouldBe: 1
+  - notfound:
+    - querySelector: title
+    - textContentBe: 'This video is unavailable. Visit TikTok to discover more trending videos.'
+  - explicit:
+    - querySelector: title
+    - textContentBe: 'This video is unavailable. Visit TikTok to discover more trending videos.'
+# do not really exist an explicit blocking of videos, it might be true for specific search queries tho
