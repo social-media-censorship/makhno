@@ -1,9 +1,7 @@
 {
-  "iteration": null,
+  "iteration": 2,
   "testTime": "2022-10-29T23:48:52.219Z",
-  "vantagePoint": "IT",
-  "platform": "tiktok",
-  "submissionId": "0411d5a2da632008aa78a61cd6740128023cde5a",
-  "testId": "1d782950a8757bf2358e92a6f42997111ef841d",
-  "targetURL": "https://www.tiktok.com/@rtl.sport/video/7154111468428856582"
+  "vantagePoint": "QA",
+  "submissionId": "dde1cf8afb085f53e1f02e31d7dcd880cbcd5929",
+  "testId": "47c846a01c3d5ccd1645e6503bfb9f53452f97dd"
 }

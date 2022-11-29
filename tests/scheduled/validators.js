@@ -17,10 +17,10 @@ describe('Scheduled validator', () => {
   test(`Validate (correct) scheduled objects`, () => {
     const rv = validators.validateScheduled(mockScheduledList);
     expect(rv).toHaveLength(SCHEDULE_LIST_LENGTH);
-    expect(rv[0])
-      .toHaveProperty('platform', 'tiktok');
-    expect(rv[0])
-      .toHaveProperty('iteration', 0);
+    _.times(SCHEDULE_LIST_LENGTH, function(i) {
+      expect(rv[i])
+        .toHaveProperty('iteration', i);
+    })
   });
 
   test(`Validate (reject) incomplete object`, () => {
@@ -30,12 +30,20 @@ describe('Scheduled validator', () => {
     expect(rv).toHaveLength(0);
   })
 
-  test(`validate query (by platform)`, () => {
-    const filter = { platform: 'tiktok' };
+  test(`validate query (string patterns)`, () => {
+    const filter = {
+      platform: 'tiktok',
+      marker: 'ciao123',
+      countryCode: 'xX'
+    };
     const fstring = JSON.stringify(filter);
     const rv = validators.queryScheduled(fstring);
     expect(rv)
       .toHaveProperty('platform', 'tiktok');
+    expect(rv)
+      .toHaveProperty('countryCode', 'XX'); // toUpper!
+    expect(rv)
+      .toHaveProperty('marker', 'ciao123');
   });
 
 });

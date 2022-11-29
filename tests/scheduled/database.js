@@ -3,7 +3,8 @@ const { describe, expect, test } = require('@jest/globals');
 const database = require('../../src/scheduled/database');
 const { ensureIndex } =  require('../../utils/build-index');
 
-const mockScheduled  = require('../_payloads/scheduled.json');
+const mockScheduled = require('../_payloads/scheduled.json');
+const mockSubmission = require('../_payloads/submission.json');
 
 describe('Database (mongo/scheduled)', () => {
 
@@ -12,8 +13,10 @@ describe('Database (mongo/scheduled)', () => {
   };
 
   test(`Ensure indexes are present`, async () => {
-    const rv = await ensureIndex(testcfg, 'scheduled');
-    expect(rv).toHaveProperty('scheduled', 4);
+    const rv1 = await ensureIndex(testcfg, 'scheduled');
+    expect(rv1).toHaveProperty('scheduled', 4);
+    const rv2 = await ensureIndex(testcfg, 'submission');
+    expect(rv2).toHaveProperty('submission', 2);
   });
 
   const newobj = _.clone(mockScheduled);
@@ -38,12 +41,20 @@ describe('Database (mongo/scheduled)', () => {
   });
 
   test(`Retrieve the Scheduled object`, async () => {
+    // remind self the lookup isn't picking the right
+    // submission. this test isn't complete, should
+    // include a test of 'http.js'
     const l = await database
-      .queryScheduled(testcfg, { testId: newobj.testId });
+      .queryScheduled(testcfg, 
+        {
+          firstMatch: { testId: newobj.testId },
+          lastMatch: { }
+        });
+    // console.log(l);
     expect(l).toHaveLength(1);
     const existing = l[0];
     expect(existing)
-      .toHaveProperty('platform', newobj.platform);
+      .toHaveProperty('iteration', newobj.iteration);
     expect(existing)
       .toHaveProperty('testId', newobj.testId);
     expect(existing)
