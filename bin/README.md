@@ -19,6 +19,7 @@ the files in this directory are all the executables you should know and use
 # tool that query Scheduled, talks with GAFAM, report to Result server
 
 ### `curl.mjs`
+### `process-output.mjs`
 
 # tool that touches everything to test Makhno
 
