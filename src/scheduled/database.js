@@ -90,8 +90,36 @@ async function removeScheduled(db, testId) {
   }
 }
 
+async function deleteBySelector(db, selector) {
+
+  debug("deleteBySelector: %j", selector);
+  const client = await connect(db);
+  try {
+    const amount = await client
+      .db()
+      .collection("scheduled")
+      .count( selector );
+
+    if(amount === 0)
+      throw new Error('No matching documents');
+    debug("Matching count %d", amount);
+    const delret = await client
+      .db()
+      .collection("scheduled")
+      .deleteMany( selector );
+    await client.close();
+    debug("deleteBySelector: %o", delret);
+    return true;
+  } catch(error) {
+    debug("Error in deleteBySelector: %s", error.message);
+    await client.close();
+    return false;
+  }
+}
+
 module.exports = {
   queryScheduled,
   createScheduled,
   removeScheduled,
+  deleteBySelector,
 }

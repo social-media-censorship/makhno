@@ -30,4 +30,8 @@ which depends on configuration file I don't commit so it might be impossible to 
 
 ### `global.mjs`
 
+### `cleaner.mjs`
+
+Remind self: _is uses a dedicated DELETE HTTP endpoint not yet documented_
+
 

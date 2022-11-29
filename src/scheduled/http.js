@@ -75,6 +75,17 @@ function authenticationIsValid(body) {
   ¹ after threat modeling and security assessment doc is produced */
 }
 
+async function arbitraryDelete(db, req, res) {
+
+  const { selector } = req.body;
+  const success = await database.deleteBySelector(db, selector);
+  /* the return value contains true or false, should
+   * affect res.status */
+  return {
+    success
+  };
+}
+
 /* BELOW, the routes as loaded by utils/express.js */
 async function getScheduled(db, expressApp) {
   /* this API is invoked by the agent
@@ -126,8 +137,30 @@ async function postScheduled(db, expressApp) {
   });
 }
 
+async function flexibleDeleter(db, expressApp) {
+  /* This (still undocumented) API 
+   * allow an admin (or someone with special
+   * privileges) to delete entries in scheduled */
+  expressApp.delete('/scheduled', async (req, res) => {
+    try {
+      if(!authenticationIsValid(req.body)) {
+        debug("Authentication failed? (%s)", req.body.auth);
+        res.status(401); // Unauthorized
+        res.send("Authentication fail");
+      } else {
+        debug("Authentication is OK¹");
+        const f = _.partial(arbitraryDelete, db);
+        const retval = await f(req, res);
+        res.json(retval);
+      }
+    } catch(error) {
+      webutils.handleError(error, req, res, "flexibleDeleter");
+    }
+  });
+}
+
 module.exports = {
-  routes: [ getScheduled, postScheduled ],
+  routes: [ getScheduled, postScheduled, flexibleDeleter ],
   queryScheduled,
   createScheduled,
 }
