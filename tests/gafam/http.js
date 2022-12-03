@@ -5,7 +5,6 @@ const path = require('path');
 
 const http = require('../../src/gafam/http');
 const { verifyConsistency } = require('../../utils/results');
-const { validateNature } = require('../../src/submission/validators');
 
 const urls = {
    // makhno/platforms$ grep example */*.yaml
