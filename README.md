@@ -9,7 +9,121 @@ The file `openapi.yaml` has been generated with https://editor.swagger.io and de
 ## file tree
 
 ```
+v :~/D/makhno main $ tree --gitignore
+.
+├── agents
+│   ├── logs
+│   └── README.md
+├── bin
+│   ├── airtable-fetcher.mjs
+│   ├── cleaner.mjs
+│   ├── curl.mjs
+│   ├── detour-everything.mjs
+│   ├── gafam.mjs
+│   ├── global.mjs
+│   ├── orchestrator.mjs
+│   ├── process-output.mjs
+│   ├── README.md
+│   ├── results.mjs
+│   ├── scheduled.mjs
+│   ├── submission.mjs
+│   └── submit.mjs
+├── config
+│   ├── airtable.example
+│   ├── database.json
+│   ├── http.json
+│   ├── NOTES.md
+│   └── README.md
+├── jest.config.js
+├── LICENSE
+├── NOTE
+├── openapi.yaml
+├── package.json
+├── package-lock.json
+├── platforms
+│   ├── domains.yaml
+│   ├── facebook
+│   ├── instagram
+│   ├── tiktok
+│   │   ├── channel.yaml
+│   │   ├── curl
+│   │   │   └── video.yaml
+│   │   ├── filterChannelOnly.js
+│   │   ├── pickVideoInfo.js
+│   │   └── video.yaml
+│   └── youtube
+│       ├── channel1.yaml
+│       ├── channel2.yaml
+│       ├── channel3.yaml
+│       ├── curl
+│       │   └── channel.yaml
+│       ├── pickLastChunk.js
+│       ├── pickLastVideoId.js
+│       ├── shorts.yaml
+│       ├── video-standard.yaml
+│       └── video-urlshort.yaml
+├── README.md
+├── src
+│   ├── gafam
+│   │   └── http.js
+│   ├── results
+│   │   ├── database.js
+│   │   ├── http.js
+│   │   └── validators.js
+│   ├── scheduled
+│   │   ├── database.js
+│   │   ├── http.js
+│   │   └── validators.js
+│   └── submission
+│       ├── database.js
+│       ├── http.js
+│       └── validators.js
+├── tests
+│   ├── agents
+│   │   └── README.md
+│   ├── gafam
+│   │   ├── curl
+│   │   │   ├── platformX-nature1.yaml
+│   │   │   ├── platformX-nature2.yaml
+│   │   │   ├── platformY-nature1.yaml
+│   │   │   └── README.md
+│   │   └── http.js
+│   ├── _payloads
+│   │   ├── blockedYTChannel.html
+│   │   ├── invalidTKvideo.html
+│   │   ├── invalidYTChannel.html
+│   │   ├── loremipsum.html
+│   │   ├── results.json
+│   │   ├── scheduled.json
+│   │   ├── submission.json
+│   │   ├── validTKvideo.html
+│   │   └── validYTChannel.html
+│   ├── results
+│   │   ├── database.js
+│   │   └── validators.js
+│   ├── scheduled
+│   │   ├── database.js
+│   │   └── validators.js
+│   ├── submission
+│   │   ├── database.js
+│   │   └── validators.js
+│   └── utils
+│       ├── parse-curl.js
+│       └── parsinghq.js
+└── utils
+    ├── build-index.js
+    ├── cli.js
+    ├── countries.js
+    ├── express.js
+    ├── gafam.js
+    ├── mongo.js
+    ├── parse-curl.js
+    ├── parsinghq.js
+    ├── results.js
+    ├── various.js
+    └── webutils.js
 
+26 directories, 85 files
 ```
 
 ### In order, to know:

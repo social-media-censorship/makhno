@@ -150,7 +150,8 @@ async function wrapTestSubmission() {
       throw new Error("Unexpected server condition");
     await interactWithSubmissionAPI(server);
   } catch(error) {
-    console.log(`Submission server error at ${server}: ${error.message}`);
+    console.log(`Submission server error at ${server}\n${error.message}`);
+    process.exit(1);
   }
 }
 
@@ -163,7 +164,8 @@ async function wrapTestScheduled() {
       throw new Error("Unexpected server condition");
     await interactWithScheduledAPI(server);
   } catch(error) {
-    console.log(`Scheduled server error at ${server}: ${error.message}`);
+    console.log(`Scheduled server error at ${server}\n${error.message}`);
+    process.exit(1);
   }
 }
 
@@ -176,7 +178,8 @@ async function wrapTestGAFAM() {
       throw new Error("Unexpected server condition");
     await interactWithGAFAMAPI(server);
   } catch(error) {
-    console.log(`GAFAM server error at ${server}: ${error.message}`);
+    console.log(`GAFAM server error at ${server}\n${error.message}`);
+    process.exit(1);
   }
 }
 
@@ -189,15 +192,27 @@ async function wrapTestResults() {
       throw new Error("Unexpected server condition");
     await interactWithResultsAPI(server);
   } catch(error) {
-    console.log(`Results server error at ${server}: ${error.message}`);
+    console.log(`Results server error at ${server}\n${error.message}`);
+    process.exit(1);
   }
 }
 
 // Here is where the execution starts:
 console.log(`This tool simply connects to all the implemented API and check if they works`);
 console.log(`Plus initially initialized the dataset with some dummy working values`);
+
+if(!argv.nospawn) {
+  quiet($`bin/submission.mjs`).nothrow()
+  await $`sleep 2`
+}
 await wrapTestSubmission();
+
+if(!argv.nospawn) {
+  quiet($`bin/scheduled.mjs`).nothrow()
+  await $`sleep 2`
+}
 await wrapTestScheduled();
+
 process.exit(1)
 await wrapTestGAFAM();
 await wrapTestResults();
