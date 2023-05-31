@@ -3,7 +3,6 @@
  */
 const _ = require('lodash');
 const debug = require('debug')('utils:parse-curl');
-// const { computeId } = require('./various');
 const { guaranteeLoading } = require('./gafam');
 const { apply } = require('./parsinghq');
 const { verifyConsistency } = require('./results');
