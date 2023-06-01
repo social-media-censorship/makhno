@@ -2,6 +2,15 @@
 
 Makhno is the tool described by the article: [New Tool Makhno will expose geographic social media censorship](https://foundation.mozilla.org/en/blog/new-tool-makhno-will-expose-geographic-social-media-censorship/), and is the backend technology implemented in [makhno.net](https://makhno.net).
 
+## June 2023 - Progress and updates
+
+* In the 2022 the development was quite slow down by non-software issues that lead to the closure of [Tracking Exposed](https://tracking.exposed) project. The software design also was quite atomic and theoretical 
+* in 2023, [URA.design](https://ura.design) is completing the frontend, and so the development of a _monolith_ version of Makhno has started, to at least sactify the requirements for a beta version to be published.
+
+**Therefore** the documentation below is not entirely update. Take it for the high level values, not for the actual `paths`.
+
+---
+
 ## Specification
 
 The file `openapi.yaml` has been generated with https://editor.swagger.io and define the API endpoints. Would be updated in an iterative fashon before becoming part of an official documentation.
