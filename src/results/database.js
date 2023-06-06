@@ -43,6 +43,7 @@ async function createResults(db, listofobjs) {
       throw new Error(`createResults: ${error.message}`);
     }
   }
+  debug("createResults inserted %d", inserted)
   await client.close();
   return inserted;
 }

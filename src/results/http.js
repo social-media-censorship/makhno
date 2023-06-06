@@ -22,7 +22,7 @@ async function queryResults(db, req, res) {
 async function createResults(db, req, res) {
   const results = validators.validateResults(req.body);
 
-  const inserted = await database.addResults(db, results);
+  const inserted = await database.createResults(db, results);
   return {
     inserted
   };

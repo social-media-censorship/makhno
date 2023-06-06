@@ -1,5 +1,11 @@
 the files in this directory are all the executables you should know and use
 
+# Services for the Makhno 2023 version
+
+### `monolith.mjs`
+### `detour-monolith.mjs`
+### `populate-results.mjs`
+
 # Services that from `../` you'll start with `npm run SERVICE_NAME`
 
 ### `gafam.mjs`
@@ -9,7 +15,6 @@ the files in this directory are all the executables you should know and use
 
 # tools to interact with the Submission server
 
-### `airtable-fetcher.mjs`
 ### `submit.mjs`
 
 # tool that talks with the Scheduled server

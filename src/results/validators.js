@@ -65,12 +65,13 @@ function validateResults(results) {
   /* this only perform a check of the fields, but in theory it
    * can also verify if the submissionId represent something valid */
   const fields = [ 'iteration', 'testTime', 'countryCode',
-    'platform', 'submissionId', 'testId', 'targetURL' ];
+    'platform', 'submissionId', 'testId', 'targetURL', 'status'];
 
   const accepted = _.reduce(results, function(memo, input) {
     const n = _.pick(input, fields);
     if(_.keys(n).length !== fields.length) {
-      debug("Invalid scheduled object! missing fields in: %j", input);
+      debug("Invalid result object! [%j] %d !== %d",
+        _.keys(n), _.keys(n).length, fields.length);
     } else {
       memo.push(n);
     }
