@@ -9,7 +9,8 @@ const debug = logger('bin:popolate-results');
 
 console.log("This script will fetch all the submissions and create a dummy result");
 
-const submissions = await fetch('http://localhost:3000/submission/all/1');
+const server = argv.local ? 'http://localhost:3000' : 'https://makhno.net';
+const submissions = await fetch(`${server}/submission/all/1`);
 const answer1 = await submissions.json();
 
 debug("Available to mock are %d submissions", answer1.length);
@@ -28,19 +29,19 @@ for (const submission of answer1) {
         platform: submission.platform,
         targetURL: submission.href,
         iteration: _.random(0, 10),
-        testId: computeId(`${submission.submissionId}-${_.random(0, 0xffff)}`),
-        testTime: moment().subtract(_.random(0, 72), 'hours').format("YYYY-MM-DD"),
+        testId: computeId(`${submission.id}-${_.random(0, 0xffff)}`),
+        testTime: moment().subtract(_.random(0, 48), 'hours').toISOString(),
     }
 
     debug("Producing %d entries for %s",
-        submission.countryCodes.length, submission.submissionId);
+        submission.countryCodes.length, submission.id);
 
     for(const countryCode of submission.countryCodes) {
         const result = _.clone(base);
         result.countryCode = countryCode;
         result.status = _.sample(_.values(statuses));
 
-        fetch('http://localhost:3000/results/', {
+        fetch(`${server}/results`, {
             method: 'POST',
             headers: {  
                 'Content-Type': 'application/json',

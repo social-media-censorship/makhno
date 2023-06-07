@@ -106,7 +106,7 @@ async function createSubmission(db, req, res) {
       retval.past = _.map(retval.past, function(o) {
         return {
           vantagePoint: o.countryCode,
-          status: o.determination,
+          status: o.status,
           checkTimeUTC: o.testTime,
         }
       });
