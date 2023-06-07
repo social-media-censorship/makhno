@@ -1,16 +1,16 @@
 {
   "gafam": {
-     "mongodb":"mongodb://localhost:27017/makhno"
+     "mongodb":"mongodb://127.0.0.1:27017/makhno"
   },
   "submission": {
-     "mongodb":"mongodb://localhost:27017/makhno",
+     "mongodb":"mongodb://127.0.0.1:27017/makhno",
      "index": [
        { "key": { "id": 1 }, "options": { "unique": true } },
        { "key": { "creationTime": -1 } }
      ]
   },
   "scheduled": {
-     "mongodb":"mongodb://localhost:27017/makhno",
+     "mongodb":"mongodb://127.0.0.1:27017/makhno",
      "index": [
        { "key": { "testId": 1 }, "options": { "unique": true } },
        { "key": { "submissionId": 1 } },
@@ -19,7 +19,7 @@
      ]
   },
   "results": {
-     "mongodb":"mongodb://localhost:27017/makhno",
+     "mongodb":"mongodb://127.0.0.1:27017/makhno",
      "index": [
        { "key": { "testId": 1 } },
        { "key": { "status": 1 } },
