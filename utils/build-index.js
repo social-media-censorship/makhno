@@ -35,8 +35,8 @@ async function ensureIndex(db, filter) {
   debug("Collections/Indexes considered: %d", indexes.length);
 
   const createdIndexes = {};
+  const client = await connect(db);
   try {
-    const client = await connect(db);
 
     for(const collection of indexes) {
       debug("Configuring mongodb index %s (%d)",
